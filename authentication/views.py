@@ -32,8 +32,3 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         return UserSerializer
-
-    def list(self, request, *args, **kwargs):
-        auth = request.META
-        print(auth)
-        return super().list(self, request, *args, **kwargs)

@@ -15,7 +15,6 @@ class IsGroupUserPermission(BasePermission):
         code_name = self.METHOD.get(request.method) + class_name
         try:
             is_exists = request.user.groups.permissions.filter(codename=code_name).exists()
-            print(is_exists)
             if is_exists:
                 return True
         except Exception as e:
@@ -27,7 +26,6 @@ class IsGroupUserPermission(BasePermission):
         code_name = self.METHOD.get(request.method) + class_name
         try:
             is_exists = request.user.groups.permissions.filter(codename=code_name).exists()
-            print(is_exists)
             if is_exists:
                 return True
         except Exception as e:
