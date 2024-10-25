@@ -41,7 +41,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ),
     )
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
-    role = models.CharField(max_length=10, choices=Roles.choices)
+    role = models.CharField(max_length=10, choices=Roles.choices, blank=True)
     groups = models.ForeignKey(
         Group,
         verbose_name=_("groups"),
@@ -59,14 +59,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ['role']
+    REQUIRED_FIELDS = []
 
     class Meta:
         verbose_name = _("user")
         verbose_name_plural = _("users")
 
     def save(self, *args, **kwargs):
-        if not self.pk:
+        if not self.pk and not self.is_staff and not self.is_superuser:
             self.password = make_password(self.password)
         return super().save(*args, **kwargs)
 
