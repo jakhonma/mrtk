@@ -20,7 +20,7 @@ class Fond(AbstractClass):
 
 
 class Category(AbstractClass):
-    fond = models.ForeignKey(Fond, on_delete=models.CASCADE, related_name='categories')
+    fond = models.ForeignKey(Fond, on_delete=models.CASCADE, related_name='categories', null=True, blank=True)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.CASCADE)
 
 

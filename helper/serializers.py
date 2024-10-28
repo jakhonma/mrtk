@@ -9,12 +9,22 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 
 class FondSerializer(serializers.ModelSerializer):
+    department = DepartmentSerializer()
+
     class Meta:
         model = Fond
         fields = '__all__'
 
 
+class NestedCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
 class CategorySerializer(serializers.ModelSerializer):
+    parent = NestedCategorySerializer()
+
     class Meta:
         model = Category
         fields = '__all__'

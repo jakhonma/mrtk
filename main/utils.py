@@ -1,14 +1,13 @@
 from uuid import uuid4
+from datetime import datetime
+from django.utils import timezone
 
 
-def poster_directory_path(instance: str, filename: str):
+def directory_path(instance: str, filename: str):
+    day = timezone.now()
+    class_name = instance.__class__.__name__
     lst = filename.split('.')
-    return f"poster/{uuid4()}.{lst[-1]}"
-
-
-def cadre_directory_path(instance: str, filename: str):
-    lst = filename.split('.')
-    return f"cadre/{uuid4()}.{lst[-1]}"
+    return f"{class_name}/{day.year}/{day.month}/{day.day}/{uuid4()}.{lst[-1]}"
 
 
 def delete_media(file_name):

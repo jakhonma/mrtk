@@ -2,12 +2,12 @@ import uuid
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from main.utils import poster_directory_path, cadre_directory_path
+from main.utils import directory_path
 
 
 class Poster(models.Model):
     objects = models.Manager()
-    image = models.ImageField(upload_to=poster_directory_path, blank=True, null=True)
+    image = models.ImageField(upload_to=directory_path, blank=True, null=True)
 
     def clean(self):
         MAX_SIZE = 1024*1024
@@ -34,7 +34,7 @@ class Information(models.Model):
     class Material(models.TextChoices):
         ETHER = 'ether', 'ether'
         PRIMARY = 'primary', 'primary'
-
+    fond = models.ForeignKey('helper.Fond', on_delete=models.CASCADE)
     category = models.ForeignKey('helper.Category', on_delete=models.SET_NULL, null=True, blank=True)
     mtv = models.ManyToManyField('helper.Mtv', related_name='mtv', blank=True)
     region = models.ManyToManyField('helper.Region', related_name='region', blank=True)
@@ -48,9 +48,9 @@ class Information(models.Model):
     material = models.CharField(max_length=10, choices=Material.choices, default=Material.ETHER)
     duration = models.TimeField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
-    single_code = models.UUIDField(default=str(uuid.uuid4().int)[:20], editable=False)
-    restavrat = models.BooleanField(default=False)
-    konfidensial = models.BooleanField(default=False)
+    single_code = models.PositiveBigIntegerField(default=int(str(uuid.uuid4().int)[:10]), editable=False)
+    restoration = models.BooleanField(default=False)
+    confidential = models.BooleanField(default=False)
     brief_data = models.TextField(null=True, blank=True, db_index=True)
     summary = models.TextField(null=True, blank=True, db_index=True)
     is_serial = models.BooleanField(default=False)
@@ -73,8 +73,18 @@ class Information(models.Model):
 
 class Cadre(models.Model):
     objects = models.Manager()
-    image = models.ImageField(upload_to=cadre_directory_path)
+    image = models.ImageField(upload_to=directory_path)
     information = models.ForeignKey('main.Information', on_delete=models.CASCADE, related_name='information')
 
     def __str__(self):
         return f'video_cadre - {self.pk}'
+
+
+class Serial(models.Model):
+    objects = models.Manager()
+    information = models.ForeignKey('main.Information', on_delete=models.CASCADE, related_name='seraial')
+    part = models.PositiveSmallIntegerField(null=True, blank=True)
+    duration = models.TimeField()
+
+    def __str__(self):
+        return self.information.title

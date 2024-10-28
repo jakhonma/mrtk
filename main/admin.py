@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Information, Poster, Cadre
 
-# Register your models here.
+admin.site.register([Information, Poster, Cadre])
+# @admin.register(Information)
+# class InformationAdmin(admin.ModelAdmin):
+#     search_fields = ['id', 'name']
