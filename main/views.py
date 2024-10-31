@@ -6,13 +6,15 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .utils import delete_media
 # from .permissions import InformationPermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from authentication.permissions import IsOwnerPermission
+from rest_framework.authentication import BasicAuthentication
 
 
 class InformationViewSet(viewsets.ModelViewSet):
     queryset = Information.objects.all()
     serializer_class = InformationSerializer
-    authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated, InformationPermission]
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsOwnerPermission]
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['region', 'language', 'date']

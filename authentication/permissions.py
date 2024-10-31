@@ -1,5 +1,6 @@
 from rest_framework.permissions import BasePermission
 from rest_framework.exceptions import ValidationError
+from authentication.models import User
 
 
 class IsGroupUserPermission(BasePermission):
@@ -31,3 +32,11 @@ class IsGroupUserPermission(BasePermission):
         except Exception as e:
             raise ValidationError({"error": e, "msg": "Bu ViewSetga kirishga ruxsat yuq"})
         return False
+
+
+class IsOwnerPermission(BasePermission):
+    def has_permission(self, request, view):
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        return request.user == obj.employee and request.user.role == User.Roles.EMPLOYEE

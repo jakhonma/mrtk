@@ -34,6 +34,8 @@ class Information(models.Model):
     class Material(models.TextChoices):
         ETHER = 'ether', 'ether'
         PRIMARY = 'primary', 'primary'
+
+    employee = models.OneToOneField('authentication.User', on_delete=models.SET_NULL, null=True, blank=True)
     fond = models.ForeignKey('helper.Fond', on_delete=models.CASCADE)
     category = models.ForeignKey('helper.Category', on_delete=models.SET_NULL, null=True, blank=True)
     mtv = models.ManyToManyField('helper.Mtv', related_name='mtv', blank=True)
