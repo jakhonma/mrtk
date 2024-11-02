@@ -1,5 +1,7 @@
 from rest_framework import viewsets, status, views, exceptions, filters, permissions, pagination, response, parsers
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
+
 from .serializers import InformationSerializer, PosterSerializer, CadreSerializer, SerialSerializer
 from .models import Information, Poster, Cadre, Serial
 from django_filters.rest_framework import DjangoFilterBackend
@@ -8,6 +10,7 @@ from .utils import delete_media
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from authentication.permissions import IsOwnerPermission
 from rest_framework.authentication import BasicAuthentication
+from django.db import transaction
 
 
 class InformationViewSet(viewsets.ModelViewSet):
@@ -41,19 +44,27 @@ class InformationViewSet(viewsets.ModelViewSet):
         serializer = PosterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        obj = self.get_object()
-        obj.poster_id = serializer.data.get("pk")
-        obj.save()
-        return response.Response(data={"msg": "Ok"}, status=status.HTTP_201_CREATED)
+        try:
+            with transaction.atomic():
+                obj = self.get_object()
+                obj.poster_id = serializer.data.get("pk")
+                obj.save()
+                return response.Response(data={"msg": "Ok"}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            raise ValidationError({"msg": f"Transaction failed: {e}"})
 
     @action(methods=["DELETE"], detail=True, permission_classes=[])
     def delete_poster(self, request, *args, **kwargs):
-        obj = self.get_object()
-        pk = obj.poster.pk
-        poster = Poster.objects.get(pk=pk)
-        delete_media(poster.image.name)
-        poster.delete()
-        return response.Response(data={"msg": "Ok"}, status=status.HTTP_204_NO_CONTENT)
+        try:
+            with transaction.atomic():
+                obj = self.get_object()
+                pk = obj.poster.pk
+                poster = Poster.objects.get(pk=pk)
+                delete_media(poster.image.name)
+                poster.delete()
+                return response.Response(data={"msg": "Ok"}, status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            raise ValidationError({"msg": f"Transaction failed: {e}"})
 
 
 class CadreViewSet(viewsets.ModelViewSet):
@@ -112,11 +123,12 @@ class SerialAPIView(views.APIView):
     def delete(self, *args, **kwargs):
         pk = kwargs["pk"]
         try:
-            serial = Serial.objects.get(pk=pk)
-            serial.delete()
-            return response.Response(data={"msg": "Ok"}, status=status.HTTP_204_NO_CONTENT)
-        except Serial.DoesNotExist:
-            raise exceptions.ValidationError({"msg": "Serial with this id does not exist"})
+            with transaction.atomic():
+                serial = Serial.objects.get(pk=pk)
+                serial.delete()
+                return response.Response(data={"msg": "Ok"}, status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            raise ValidationError({"msg": f"Transaction failed: {e}"})
 
 
 class CadreAPIView(views.APIView):
@@ -159,11 +171,11 @@ class CadreAPIView(views.APIView):
 
     def delete(self, *args, **kwargs):
         pk = kwargs["pk"]
-
         try:
-            cadre = Cadre.objects.get(pk=pk)
-            delete_media(cadre.image.name)
-            cadre.delete()
-            return response.Response(data={"msg": "Ok"}, status=status.HTTP_204_NO_CONTENT)
-        except Serial.DoesNotExist:
-            raise exceptions.ValidationError({"msg": "Cadre with this id does not exist"})
+            with transaction.atomic():
+                cadre = Cadre.objects.get(pk=pk)
+                delete_media(cadre.image.name)
+                cadre.delete()
+                return response.Response(data={"msg": "Ok"}, status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            raise ValidationError({"msg": f"Transaction failed: {e}"})
