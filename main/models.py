@@ -1,8 +1,6 @@
-import uuid
-
 from django.core.exceptions import ValidationError
 from django.db import models
-from main.utils import directory_path
+from main.utils import directory_path, code_generator
 
 
 class Poster(models.Model):
@@ -50,7 +48,7 @@ class Information(models.Model):
     material = models.CharField(max_length=10, choices=Material.choices, default=Material.ETHER)
     duration = models.TimeField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
-    single_code = models.PositiveBigIntegerField(default=int(str(uuid.uuid4().int)[:10]), editable=False)
+    single_code = models.PositiveBigIntegerField(default=code_generator(), editable=False)
     restoration = models.BooleanField(default=False)
     confidential = models.BooleanField(default=False)
     brief_data = models.TextField(null=True, blank=True, db_index=True)

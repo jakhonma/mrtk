@@ -1,6 +1,9 @@
-from uuid import uuid4
-from datetime import datetime
 from django.utils import timezone
+from uuid import uuid4
+
+
+def code_generator() -> int:
+    return int(str(uuid4().int)[:10])
 
 
 def directory_path(instance: str, filename: str):

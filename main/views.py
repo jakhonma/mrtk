@@ -1,12 +1,10 @@
 from rest_framework import viewsets, status, views, exceptions, filters, permissions, pagination, response, parsers
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-
 from .serializers import InformationSerializer, PosterSerializer, CadreSerializer, SerialSerializer
 from .models import Information, Poster, Cadre, Serial
 from django_filters.rest_framework import DjangoFilterBackend
 from .utils import delete_media
-# from .permissions import InformationPermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from authentication.permissions import IsOwnerPermission
 from rest_framework.authentication import BasicAuthentication
@@ -83,7 +81,6 @@ class CadreViewSet(viewsets.ModelViewSet):
 
 
 class SerialAPIView(views.APIView):
-
     def get(self, request, *args, **kwargs):
         information_id = kwargs['information_id']
         if information_id is None:
@@ -132,7 +129,6 @@ class SerialAPIView(views.APIView):
 
 
 class CadreAPIView(views.APIView):
-
     def get(self, request, *args, **kwargs):
         information_id = kwargs['information_id']
         if information_id is None:
