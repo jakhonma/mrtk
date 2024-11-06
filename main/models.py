@@ -1,4 +1,6 @@
+from datetime import date
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from main.utils import directory_path, code_generator
 
@@ -33,8 +35,8 @@ class Information(models.Model):
         ETHER = 'ether', 'ether'
         PRIMARY = 'primary', 'primary'
 
-    employee = models.OneToOneField('authentication.User', on_delete=models.SET_NULL, null=True, blank=True)
-    fond = models.ForeignKey('helper.Fond', on_delete=models.CASCADE)
+    employee = models.ForeignKey('authentication.User', on_delete=models.SET_NULL, null=True, blank=True)
+    # fond = models.ForeignKey('helper.Fond', on_delete=models.CASCADE)
     category = models.ForeignKey('helper.Category', on_delete=models.SET_NULL, null=True, blank=True)
     mtv = models.ManyToManyField('helper.Mtv', related_name='mtv', blank=True)
     region = models.ManyToManyField('helper.Region', related_name='region', blank=True)
@@ -47,7 +49,18 @@ class Information(models.Model):
     color = models.CharField(max_length=12, choices=Colors.choices, default=Colors.COLOURED)
     material = models.CharField(max_length=10, choices=Material.choices, default=Material.ETHER)
     duration = models.TimeField(blank=True, null=True)
-    date = models.DateField(blank=True, null=True)
+    year = models.PositiveIntegerField(null=True, blank=True, validators=[
+        MinValueValidator(1920, message="Yilni tug'ri kiriting?"),
+        MaxValueValidator(int(date.today().year), message="Yilni tug'ri kiriting?")
+    ])
+    month = models.PositiveIntegerField(null=True, blank=True, validators=[
+        MinValueValidator(1, message="Oyni tug'ri kiriting?"),
+        MaxValueValidator(12, message="Oyni tug'ri kiriting?")
+    ])
+    day = models.PositiveIntegerField(null=True, blank=True, validators=[
+        MinValueValidator(1, message="Kunni tug'ri kiriting?"),
+        MaxValueValidator(31, message="Kunni tug'ri kiriting?")
+    ])
     single_code = models.PositiveBigIntegerField(default=code_generator(), editable=False)
     restoration = models.BooleanField(default=False)
     confidential = models.BooleanField(default=False)

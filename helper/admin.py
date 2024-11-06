@@ -1,5 +1,5 @@
 from django.contrib import admin
-from helper.models import Fond, Department, Category
+from helper.models import Fond, Department, Category, Mtv, Language, Region, Format
 
 
 @admin.register(Department)
@@ -15,3 +15,5 @@ class FondAdmin(admin.ModelAdmin):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     search_fields = ['id', 'name']
+
+admin.site.register([Mtv, Language, Region, Format])
