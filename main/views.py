@@ -9,6 +9,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from authentication.permissions import IsOwnerPermission
 from rest_framework.authentication import BasicAuthentication
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 
 
 class InformationViewSet(viewsets.ModelViewSet):
@@ -18,9 +19,18 @@ class InformationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerPermission]
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
-    ordering_fields = ['region', 'language', 'date']
+    ordering_fields = ['region', 'language', 'year']
     search_fields = ['title', 'brief_data', 'summary', 'mtv_index', 'location_on_server']
-    filterset_fields = ['category__name', 'region__name', 'date']
+    filterset_fields = [
+        'category__fond__department__name',
+        'category__fond__name',
+        'category__parent__name',
+        'category__name',
+        'region__name',
+        'year',
+        'month',
+        'day'
+    ]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -137,7 +147,7 @@ class CadreAPIView(views.APIView):
         pk = kwargs.get('pk', None)
         if pk is not None:
             try:
-                cadre = Cadre.objects.get(pk=pk)
+                cadre = get_object_or_404(Cadre, pk=pk, information_id=information_id)
                 serializer = CadreSerializer(cadre)
                 return response.Response(serializer.data)
             except Serial.DoesNotExist:

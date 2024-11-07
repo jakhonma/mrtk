@@ -1,36 +1,27 @@
 from import_export import resources, fields
 from import_export.widgets import ForeignKeyWidget, ManyToManyWidget
-
 from authentication.models import User
 from main.models import Information
 from helper.models import Fond, Category, Mtv, Region, Language, Format
-from typing import Any
-
-
-class FondCategoryForeignKeyWidget(ForeignKeyWidget):
-    def get_queryset(self, value, row, *args, **kwargs):
-        fond_id = Fond.objects.get(name=row['fond'])
-        return self.model.objects.filter(
-            fond_id=fond_id,
-            name=row["category"]
-        )
 
 
 class CategoryParentForeignKeyWidget(ForeignKeyWidget):
-    def get_queryset(self, value, row, *args, **kwargs):
-        fond = Fond.objects.get(name=row['fond'])
-        category = Category.objects.get(name=row['category'], fond=fond)
-        if row['parent']:
-            category = Category.objects.get(name=row['parent'], parent=category)
-            return self.model.objects.filter(
-                parent=category,
-                name=row["parent"]
-            )
+
+    def clean(self, value, row=None, **kwargs):
+        # val = super().clean(value)
+        parent_name = row['parent']
+        category_name = row["category"]
+        fond = row["fond"]
+        try:
+            category = Category.objects.get(name=category_name, fond__name=fond)
+        except Category.DoesNotExist:
+            raise ValueError(f"Category {category_name} does not exist in the database.")
+        if parent_name is not None:
+            return Category.objects.filter(name=parent_name, parent=category)[0]
+        elif category_name is not None:
+            return category
         else:
-            return self.model.objects.filter(
-                fond=fond,
-                name=row["category"]
-            )
+            return None
 
 
 class InformationAdminResource(resources.ModelResource):
@@ -38,25 +29,16 @@ class InformationAdminResource(resources.ModelResource):
         super().__init__()
         self.user = user
 
-    # fond = fields.Field(
-    #     column_name='fond',
-    #     attribute='fond',
-    #     widget=FondCategoryForeignKeyWidget(Category, field='name')
-    # )
     category = fields.Field(
         column_name='category',
         attribute='category',
-        widget=CategoryParentForeignKeyWidget(Category, field='name')
+        widget=CategoryParentForeignKeyWidget(model=Category, field='name')
     )
-    # category_parent = fields.Field(
-    #     column_name='category',
-    #     attribute='category.parent',
-    #     widget=FondCategoryForeignKeyWidget(Category, field='name')
-    # )
+
     employee = fields.Field(
         column_name='emp',
         attribute='employee',
-        widget=FondCategoryForeignKeyWidget(User, field='username')
+        widget=ForeignKeyWidget(User, field='username')
     )
 
     mtv = fields.Field(column_name='mtv', attribute='mtv', widget=ManyToManyWidget(Mtv, field='name'))
@@ -66,9 +48,6 @@ class InformationAdminResource(resources.ModelResource):
 
     def before_import_row(self, row, **kwargs):
         self.employee = kwargs['user']
-        # fond_name = row["fond"]
-        # category_name = row["category"] if row["category"] is not None else None
-        # sub_category_name = row["sub_category"] if row["sub_category"] is not None else None
         mtv_name = str(row["mtv"]).strip()
         region_name = str(row["region"]).strip()
         language_name = str(row["language"]).strip()
@@ -131,5 +110,5 @@ class InformationAdminResource(resources.ModelResource):
             'category', 'mtv', 'region', 'language', 'format', 'id', 'title',
             'mtv_index', 'location_on_server', 'color', 'material', 'duration',
             'year', 'month', 'day', 'restoration', 'confidential', 'brief_data',
-            'summary', 'is_serial', 'part',
+            'summary', 'is_serial'
         ]

@@ -4,7 +4,6 @@ from helper.serializers import FondSerializer, CategorySerializer
 
 
 class InformationSerializer(serializers.ModelSerializer):
-    fond = FondSerializer(required=False)
     category = CategorySerializer(required=False)
 
     class Meta:

@@ -13,4 +13,5 @@ router.register('region', views.RegionViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('category-view/', views.CategoryListView.as_view()),
 ]

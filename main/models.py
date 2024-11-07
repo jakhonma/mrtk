@@ -67,18 +67,15 @@ class Information(models.Model):
     brief_data = models.TextField(null=True, blank=True, db_index=True)
     summary = models.TextField(null=True, blank=True, db_index=True)
     is_serial = models.BooleanField(default=False)
-    part = models.PositiveSmallIntegerField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created']
 
-    def clean(self):
-        if not self.is_serial:
-            if self.part is not None:
-                raise ValidationError("Qism qushish mumkin emas")
-        return self
+    # def clean(self):
+    #     if not self.is_serial:
+    #         raise ValidationError("Qism qushish mumkin emas")
 
     def __str__(self):
         return self.title

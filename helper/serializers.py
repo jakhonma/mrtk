@@ -1,54 +1,67 @@
 from .models import Department, Fond, Category, Mtv, Format, Language, Region
 from rest_framework import serializers
+from django.core.exceptions import ValidationError as DjangoValidationError
+from rest_framework.exceptions import ValidationError as DRFValidationError
 
 
-class DepartmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Department
-        fields = '__all__'
+class AbstractClassSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=150)
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        return instance
 
 
-class FondSerializer(serializers.ModelSerializer):
+class DepartmentSerializer(AbstractClassSerializer):
+    def create(self, validated_data):
+        return Department.objects.create(**validated_data)
+
+
+class FondSerializer(serializers.Serializer):
     department = DepartmentSerializer()
+    name = serializers.CharField(max_length=150)
 
-    class Meta:
-        model = Fond
-        fields = '__all__'
+    def create(self, validated_data):
+        return Fond.objects.create(**validated_data)
+
+
+class MtvSerializer(AbstractClassSerializer):
+    def create(self, validated_data):
+        return Mtv.objects.create(**validated_data)
+
+
+class FormatSerializer(AbstractClassSerializer):
+    def create(self, validated_data):
+        return Format.objects.create(**validated_data)
+
+
+class RegionSerializer(AbstractClassSerializer):
+    def create(self, validated_data):
+        return Region.objects.create(**validated_data)
+
+
+class LanguageSerializer(AbstractClassSerializer):
+    def create(self, validated_data):
+        return Language.objects.create(**validated_data)
 
 
 class NestedCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ['id', 'name', 'fond', 'parent']
+
+    def validate(self, attrs):
+        category = Category(**attrs)
+        try:
+            category.clean()
+        except DjangoValidationError as e:
+            raise DRFValidationError({"msg": e.message})
+        return attrs
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    parent = NestedCategorySerializer()
+    children = NestedCategorySerializer(many=True, read_only=True)
 
     class Meta:
         model = Category
-        fields = '__all__'
-
-
-class MtvSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Mtv
-        fields = '__all__'
-
-
-class FormatSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Format
-        fields = '__all__'
-
-
-class RegionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Region
-        fields = '__all__'
-
-
-class LanguageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Language
-        fields = '__all__'
+        fields = ['id', 'name', 'fond', 'children']

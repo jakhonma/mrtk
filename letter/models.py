@@ -52,6 +52,8 @@ class Letter(models.Model):
         if self.process == self.Process.ARCHIVE_DIRECTOR:
             self.process = self.Process.ARCHIVE_EMPLOYEE
             self.save()
+        else:
+            pass
 
     def archive_finished(self):
         if self.process == self.Process.ARCHIVE_EMPLOYEE:

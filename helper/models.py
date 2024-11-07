@@ -1,8 +1,9 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
 class AbstractClass(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=150)
 
     class Meta:
         abstract = True
@@ -22,6 +23,14 @@ class Fond(AbstractClass):
 class Category(AbstractClass):
     fond = models.ForeignKey(Fond, on_delete=models.CASCADE, related_name='categories', null=True, blank=True)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.CASCADE)
+
+    def clean(self):
+        if self.fond is not None and self.parent is not None:
+            raise ValidationError("Fond va Parent qushish mumkin emas")
+        if self.parent is None and self.fond is None:
+            raise ValidationError("Fond or Parent is None")
+        if self.parent is not None and self.parent.name == self.name:
+            raise ValidationError("Parent name mustn't be same")
 
 
 class Mtv(AbstractClass):
