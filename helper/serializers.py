@@ -12,9 +12,12 @@ class AbstractClassSerializer(serializers.Serializer):
         return instance
 
 
-class DepartmentSerializer(AbstractClassSerializer):
-    def create(self, validated_data):
-        return Department.objects.create(**validated_data)
+class DepartmentSerializer(serializers.ModelSerializer):
+    # def create(self, validated_data):
+    #     return Department.objects.create(**validated_data)
+    class Meta:
+        model = Department
+        fields = '__all__'
 
 
 class FondSerializer(serializers.Serializer):
@@ -46,6 +49,7 @@ class LanguageSerializer(AbstractClassSerializer):
 
 
 class NestedCategorySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Category
         fields = ['id', 'name', 'fond', 'parent']
@@ -61,6 +65,7 @@ class NestedCategorySerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     children = NestedCategorySerializer(many=True, read_only=True)
+    fond = FondSerializer()
 
     class Meta:
         model = Category

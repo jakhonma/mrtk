@@ -1,20 +1,28 @@
 from rest_framework import serializers
 from .models import Information, Poster, Cadre, Serial
-from helper.serializers import FondSerializer, CategorySerializer
-
-
-class InformationSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(required=False)
-
-    class Meta:
-        model = Information
-        fields = '__all__'
+from helper.serializers import (FondSerializer, NestedCategorySerializer,
+                                CategorySerializer, MtvSerializer, RegionSerializer,
+                                LanguageSerializer, FormatSerializer)
 
 
 class PosterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Poster
         fields = ['pk', 'image']
+
+
+class InformationSerializer(serializers.ModelSerializer):
+    fond = FondSerializer(required=True)
+    category = NestedCategorySerializer(required=False)
+    mtv = MtvSerializer(many=True, required=False)
+    region = RegionSerializer(many=True, required=False)
+    language = LanguageSerializer(many=True, required=False)
+    format = FormatSerializer(many=True, required=False)
+    poster = PosterSerializer(required=False)
+
+    class Meta:
+        model = Information
+        fields = '__all__'
 
 
 class CadreSerializer(serializers.Serializer):

@@ -36,7 +36,7 @@ class Information(models.Model):
         PRIMARY = 'primary', 'primary'
 
     employee = models.ForeignKey('authentication.User', on_delete=models.SET_NULL, null=True, blank=True)
-    # fond = models.ForeignKey('helper.Fond', on_delete=models.CASCADE)
+    fond = models.ForeignKey('helper.Fond', on_delete=models.CASCADE, null=True, blank=True)
     category = models.ForeignKey('helper.Category', on_delete=models.SET_NULL, null=True, blank=True)
     mtv = models.ManyToManyField('helper.Mtv', related_name='mtv', blank=True)
     region = models.ManyToManyField('helper.Region', related_name='region', blank=True)

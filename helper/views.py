@@ -12,8 +12,9 @@ from rest_framework.permissions import IsAuthenticated
 
 
 class AbstractClassViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsGroupUserPermission, IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsGroupUserPermission, IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    pass
 
 
 class DepartmentViewSet(AbstractClassViewSet):

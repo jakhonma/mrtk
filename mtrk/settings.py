@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-+*3t&4+lrt2-kq)6c1p^xs(go%v+14ii+1t$ik-fcxa9pwz1p5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['10.0.1.75']
 
 
 # Application definition
@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'import_export',
+    'corsheaders',
+    'drf_yasg',
 
     # local app
     'authentication.apps.AuthenticationConfig',
@@ -47,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'mtrk.urls'
@@ -180,3 +183,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:5173',
+)

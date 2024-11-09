@@ -15,14 +15,15 @@ from django.shortcuts import get_object_or_404
 class InformationViewSet(viewsets.ModelViewSet):
     queryset = Information.objects.all()
     serializer_class = InformationSerializer
-    authentication_classes = [BasicAuthentication]
-    permission_classes = [IsOwnerPermission]
+    # authentication_classes = [BasicAuthentication]
+    # permission_classes = [IsOwnerPermission]
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['region', 'language', 'year']
     search_fields = ['title', 'brief_data', 'summary', 'mtv_index', 'location_on_server']
     filterset_fields = [
-        'category__fond__department__name',
+        'fond__department__name',
+        'category__parent__fond__department__name',
         'category__fond__name',
         'category__parent__name',
         'category__name',
