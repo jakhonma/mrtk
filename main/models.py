@@ -29,7 +29,7 @@ class Poster(models.Model):
 class Information(models.Model):
     class Colors(models.TextChoices):
         COLOURED = 'coloured', 'coloured'
-        WRITE_BLACK = 'write-black', 'write-black'
+        WRITE_BLACK = 'white-black', 'white-black'
 
     class Material(models.TextChoices):
         ETHER = 'ether', 'ether'

@@ -5,15 +5,34 @@ from main.models import Information
 from helper.models import Fond, Category, Mtv, Region, Language, Format
 
 
+class FondForeignKeyWidget(ForeignKeyWidget):
+
+    def clean(self, value, row=None, **kwargs):
+        # val = super().clean(value)
+        department_name = str(row['department']).strip()
+        fond_name = str(row["fond"]).strip()
+        try:
+            fond = Fond.objects.get(name=fond_name, department__name=department_name)
+        except Fond.DoesNotExist:
+            raise ValueError(f"Category {fond_name} does not exist in the database.")
+        if fond is not None:
+            return fond
+        else:
+            return None
+
+
 class CategoryParentForeignKeyWidget(ForeignKeyWidget):
 
     def clean(self, value, row=None, **kwargs):
         # val = super().clean(value)
         parent_name = row['parent']
         category_name = row["category"]
-        fond = row["fond"]
+        fond_name = row["fond"]
+        department_name = str(row["department"]).strip()
         try:
-            category = Category.objects.get(name=category_name, fond__name=fond)
+            fond = Fond.objects.get(name=fond_name, department__name=department_name)
+            print(fond)
+            category = Category.objects.get(name=category_name, fond=fond)
         except Category.DoesNotExist:
             raise ValueError(f"Category {category_name} does not exist in the database.")
         if parent_name is not None:
@@ -28,6 +47,12 @@ class InformationAdminResource(resources.ModelResource):
     def __init__(self, user=None, *args, **kwargs):
         super().__init__()
         self.user = user
+
+    fond = fields.Field(
+        column_name='fond',
+        attribute='fond',
+        widget=FondForeignKeyWidget(model=Fond, field='name')
+    )
 
     category = fields.Field(
         column_name='category',
@@ -107,7 +132,7 @@ class InformationAdminResource(resources.ModelResource):
     class Meta:
         model = Information
         fields = [
-            'category', 'mtv', 'region', 'language', 'format', 'id', 'title',
+            'fond', 'category', 'mtv', 'region', 'language', 'format', 'id', 'title',
             'mtv_index', 'location_on_server', 'color', 'material', 'duration',
             'year', 'month', 'day', 'restoration', 'confidential', 'brief_data',
             'summary', 'is_serial'

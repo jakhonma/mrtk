@@ -19,6 +19,9 @@ class Department(AbstractClass):
 class Fond(AbstractClass):
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='fonds')
 
+    def __str__(self):
+        return f"{self.name} {self.department.name}"
+
 
 class Category(AbstractClass):
     fond = models.ForeignKey(Fond, on_delete=models.CASCADE, related_name='categories', null=True, blank=True)
@@ -31,6 +34,9 @@ class Category(AbstractClass):
             raise ValidationError("Fond or Parent is None")
         if self.parent is not None and self.parent.name == self.name:
             raise ValidationError("Parent name mustn't be same")
+
+    def __str__(self):
+        return f"{self.name} -> {self.fond}"
 
 
 class Mtv(AbstractClass):

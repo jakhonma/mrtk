@@ -63,6 +63,15 @@ class NestedCategorySerializer(serializers.ModelSerializer):
         return attrs
 
 
+class InformationCategorySerializer(serializers.ModelSerializer):
+
+    parent = NestedCategorySerializer(required=False)
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'fond', 'parent']
+
+
 class CategorySerializer(serializers.ModelSerializer):
     children = NestedCategorySerializer(many=True, read_only=True)
     fond = FondSerializer()

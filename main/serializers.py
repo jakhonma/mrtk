@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Information, Poster, Cadre, Serial
 from helper.serializers import (FondSerializer, NestedCategorySerializer,
                                 CategorySerializer, MtvSerializer, RegionSerializer,
-                                LanguageSerializer, FormatSerializer)
+                                LanguageSerializer, FormatSerializer, InformationCategorySerializer)
 
 
 class PosterSerializer(serializers.ModelSerializer):
@@ -13,7 +13,7 @@ class PosterSerializer(serializers.ModelSerializer):
 
 class InformationSerializer(serializers.ModelSerializer):
     fond = FondSerializer(required=True)
-    category = NestedCategorySerializer(required=False)
+    category = InformationCategorySerializer(required=False)
     mtv = MtvSerializer(many=True, required=False)
     region = RegionSerializer(many=True, required=False)
     language = LanguageSerializer(many=True, required=False)
