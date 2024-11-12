@@ -14,4 +14,8 @@ router.register('region', views.RegionViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('category-view/', views.CategoryListView.as_view()),
+
+    # Filter
+    path('department-fond/<int:department_id>/', views.FontListDepartmentAPIView.as_view()),
+    path('fond-category/<int:fond_id>/', views.CategoryFondListView.as_view()),
 ]

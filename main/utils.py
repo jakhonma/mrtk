@@ -3,6 +3,7 @@ from uuid import uuid4
 
 
 def code_generator() -> int:
+    """Tasodifiy sonlar generatsiya qiladi"""
     return int(str(uuid4().int)[:10])
 
 
@@ -18,3 +19,15 @@ def delete_media(file_name):
     import os
     paths = settings.MEDIA_ROOT
     os.remove(os.path.join(paths, file_name))
+
+
+def add_many_to_many(obj, obj_list):
+    """Informationga (mtv, region, language, format) larni qushish"""
+    for item in obj_list:
+        obj.add(item)
+
+
+def edit_many_to_many(obj, obj_list):
+    """Informationga (mtv, region, language, format) larni o'zgartirish"""
+    if obj_list is not None:
+        obj.set(obj_list)

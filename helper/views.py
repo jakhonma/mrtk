@@ -1,14 +1,16 @@
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, response
 from .models import Department, Fond, Category, Mtv, Format, Language, Region
 from helper.serializers import (
     DepartmentSerializer, FondSerializer,
     CategorySerializer, MtvSerializer,
     FormatSerializer, LanguageSerializer,
-    RegionSerializer, NestedCategorySerializer
+    RegionSerializer, NestedCategorySerializer,
+    InformationCategorySerializer
 )
 from authentication.permissions import IsGroupUserPermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
 
 
 class AbstractClassViewSet(viewsets.ModelViewSet):
@@ -25,6 +27,14 @@ class DepartmentViewSet(AbstractClassViewSet):
 class FondViewSet(AbstractClassViewSet):
     queryset = Fond.objects.all()
     serializer_class = FondSerializer
+
+
+class FontListDepartmentAPIView(generics.ListAPIView):
+    serializer_class = FondSerializer
+
+    def get_queryset(self):
+        queryset = Fond.objects.filter(department_id=self.kwargs['department_id'])
+        return queryset
 
 
 class MTVViewSet(AbstractClassViewSet):
@@ -58,3 +68,14 @@ class CategoryListView(generics.ListAPIView):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = NestedCategorySerializer
+
+
+class CategoryFondListView(generics.ListAPIView):
+    def get_queryset(self):
+        queryset = Category.objects.filter(
+            Q(fond_id=self.kwargs['fond_id']) |
+            Q(parent__fond_id=self.kwargs['fond_id'])
+        )
+        return queryset
+
+    serializer_class = InformationCategorySerializer

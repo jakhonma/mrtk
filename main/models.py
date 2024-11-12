@@ -45,7 +45,7 @@ class Information(models.Model):
     poster = models.OneToOneField(Poster, on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=255, db_index=True)
     mtv_index = models.CharField(max_length=100)
-    location_on_server = models.CharField(max_length=250)
+    location_on_server = models.CharField(max_length=200)
     color = models.CharField(max_length=12, choices=Colors.choices, default=Colors.COLOURED)
     material = models.CharField(max_length=10, choices=Material.choices, default=Material.ETHER)
     duration = models.TimeField(blank=True, null=True)

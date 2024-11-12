@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 
 
 class AbstractClassSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=150)
 
     def update(self, instance, validated_data):
@@ -12,15 +13,16 @@ class AbstractClassSerializer(serializers.Serializer):
         return instance
 
 
-class DepartmentSerializer(serializers.ModelSerializer):
-    # def create(self, validated_data):
-    #     return Department.objects.create(**validated_data)
-    class Meta:
-        model = Department
-        fields = '__all__'
+class DepartmentSerializer(AbstractClassSerializer):
+    def create(self, validated_data):
+        return Department.objects.create(**validated_data)
+    # class Meta:
+    #     model = Department
+    #     fields = '__all__'
 
 
 class FondSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     department = DepartmentSerializer()
     name = serializers.CharField(max_length=150)
 
@@ -64,7 +66,6 @@ class NestedCategorySerializer(serializers.ModelSerializer):
 
 
 class InformationCategorySerializer(serializers.ModelSerializer):
-
     parent = NestedCategorySerializer(required=False)
 
     class Meta:

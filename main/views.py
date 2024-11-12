@@ -1,7 +1,13 @@
-from rest_framework import viewsets, status, views, exceptions, filters, permissions, pagination, response, parsers
+from rest_framework import (
+    viewsets, status, views, exceptions, filters, permissions, pagination,
+    response, parsers, generics, mixins
+)
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from .serializers import InformationSerializer, PosterSerializer, CadreSerializer, SerialSerializer
+from .serializers import (
+    InformationSerializer, PosterSerializer,
+    CadreSerializer, SerialSerializer, InformationCreateUpdateSerializer
+)
 from .models import Information, Poster, Cadre, Serial
 from django_filters.rest_framework import DjangoFilterBackend
 from .utils import delete_media
@@ -48,21 +54,89 @@ class InformationViewSet(viewsets.ModelViewSet):
                 delete_media(item.image.name)
         instance.delete()
 
-    @action(methods=["POST"], detail=True, parser_classes=(parsers.MultiPartParser,), permission_classes=[])
-    def poster(self, request, *args, **kwargs):
+
+class InformationCreateAPIView(generics.CreateAPIView):
+    """Information creation API view"""
+    queryset = Information.objects.all()
+    serializer_class = InformationCreateUpdateSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return response.Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+class InformationUpdateAPIView(generics.UpdateAPIView):
+    """
+        Update a model instance.
+    """
+    queryset = Information.objects.all()
+    serializer_class = InformationCreateUpdateSerializer
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance,
+            data=request.data,
+            partial=partial,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        return response.Response(serializer.data)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
+
+
+class PosterCreateAPIView(generics.CreateAPIView):
+    """Viewda ma'lum informisionga poster qo'shadi"""
+    # parser_classes = (parsers.MultiPartParser,)
+    permission_classes = []
+
+    def create(self, request, *args, **kwargs):
+        """Create a poster."""
+        information_id = kwargs['information_id']
         serializer = PosterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         try:
             with transaction.atomic():
-                obj = self.get_object()
+                obj = get_object_or_404(Information, id=information_id)
                 obj.poster_id = serializer.data.get("pk")
                 obj.save()
                 return response.Response(data={"msg": "Ok"}, status=status.HTTP_201_CREATED)
         except Exception as e:
             raise ValidationError({"msg": f"Transaction failed: {e}"})
 
-    @action(methods=["DELETE"], detail=True, permission_classes=[])
+
+class PosterDeleteAPIView(generics.DestroyAPIView):
+    permission_classes = []
+    queryset = Poster.objects.all()
+    serializer_class = PosterSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
     def delete_poster(self, request, *args, **kwargs):
         try:
             with transaction.atomic():
