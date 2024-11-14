@@ -1,7 +1,7 @@
 from datetime import date
 from django.core.validators import MinValueValidator, MaxValueValidator
 from rest_framework import serializers
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from .utils import add_many_to_many, edit_many_to_many
 from helper.models import Mtv, Region, Language, Format
 from .models import Information, Poster, Cadre, Serial
@@ -157,3 +157,9 @@ class SerialSerializer(serializers.Serializer):
         instance.duration = validated_data.get('duration', instance.duration)
         instance.save()
         return instance
+
+    def validate(self, attrs):
+        information = Information.objects.get(pk=attrs['information_id'])
+        if not information.is_serial:
+            raise ValidationError({"msg": "Serialga qushing"})
+        return attrs

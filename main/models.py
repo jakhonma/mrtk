@@ -35,28 +35,84 @@ class Information(models.Model):
         ETHER = 'ether', 'ether'
         PRIMARY = 'primary', 'primary'
 
-    employee = models.ForeignKey('authentication.User', on_delete=models.SET_NULL, null=True, blank=True)
-    fond = models.ForeignKey('helper.Fond', on_delete=models.CASCADE, null=True, blank=True)
-    category = models.ForeignKey('helper.Category', on_delete=models.SET_NULL, null=True, blank=True)
-    mtv = models.ManyToManyField('helper.Mtv', related_name='mtv', blank=True)
-    region = models.ManyToManyField('helper.Region', related_name='region', blank=True)
-    language = models.ManyToManyField('helper.Language', related_name='language', blank=True)
-    format = models.ManyToManyField('helper.Format', related_name='format', blank=True)
-    poster = models.OneToOneField(Poster, on_delete=models.SET_NULL, null=True, blank=True)
+    employee = models.ForeignKey(
+        'authentication.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    fond = models.ForeignKey(
+        'helper.Fond',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+    category = models.ForeignKey(
+        'helper.Category',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    mtv = models.ManyToManyField(
+        'helper.Mtv',
+        related_name='mtv',
+        null=True,
+        blank=True
+    )
+    region = models.ManyToManyField(
+        'helper.Region',
+        related_name='region',
+        null=True,
+        blank=True
+    )
+    language = models.ManyToManyField(
+        'helper.Language',
+        related_name='language',
+        null=True,
+        blank=True
+    )
+    format = models.ManyToManyField(
+        'helper.Format',
+        related_name='format',
+        null=True,
+        blank=True
+    )
+    poster = models.OneToOneField(
+        Poster,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
     title = models.CharField(max_length=255, db_index=True)
     mtv_index = models.CharField(max_length=100)
     location_on_server = models.CharField(max_length=200)
-    color = models.CharField(max_length=12, choices=Colors.choices, default=Colors.COLOURED)
-    material = models.CharField(max_length=10, choices=Material.choices, default=Material.ETHER)
+    color = models.CharField(
+        max_length=12,
+        choices=Colors.choices,
+        default=Colors.COLOURED
+    )
+    material = models.CharField(
+        max_length=10,
+        choices=Material.choices,
+        default=Material.ETHER
+    )
     duration = models.TimeField(blank=True, null=True)
-    year = models.PositiveIntegerField(null=True, blank=True, validators=[
-        MinValueValidator(1920, message="Yilni tug'ri kiriting?"),
-        MaxValueValidator(int(date.today().year), message="Yilni tug'ri kiriting?")
-    ])
-    month = models.PositiveIntegerField(null=True, blank=True, validators=[
-        MinValueValidator(1, message="Oyni tug'ri kiriting?"),
-        MaxValueValidator(12, message="Oyni tug'ri kiriting?")
-    ])
+    year = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(1920, message="Yilni tug'ri kiriting?"),
+            MaxValueValidator(int(date.today().year), message="Yilni tug'ri kiriting?")
+        ],
+        null=True,
+        blank=True
+    )
+    month = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(1, message="Oyni tug'ri kiriting?"),
+            MaxValueValidator(12, message="Oyni tug'ri kiriting?")
+        ],
+        null=True,
+        blank=True
+    )
     day = models.PositiveIntegerField(null=True, blank=True, validators=[
         MinValueValidator(1, message="Kunni tug'ri kiriting?"),
         MaxValueValidator(31, message="Kunni tug'ri kiriting?")
@@ -82,17 +138,23 @@ class Information(models.Model):
 
 
 class Cadre(models.Model):
-    objects = models.Manager()
     image = models.ImageField(upload_to=directory_path)
-    information = models.ForeignKey('main.Information', on_delete=models.CASCADE, related_name='information')
+    information = models.ForeignKey(
+        'main.Information',
+        on_delete=models.CASCADE,
+        related_name='information'
+    )
 
     def __str__(self):
         return f'video_cadre - {self.pk}'
 
 
 class Serial(models.Model):
-    objects = models.Manager()
-    information = models.ForeignKey('main.Information', on_delete=models.CASCADE, related_name='seraial')
+    information = models.ForeignKey(
+        'main.Information',
+        on_delete=models.CASCADE,
+        related_name='serials'
+    )
     part = models.PositiveSmallIntegerField(null=True, blank=True)
     duration = models.TimeField()
 

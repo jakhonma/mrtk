@@ -1,3 +1,4 @@
 from django.contrib import admin
+from report.models import Report, InfoItem
 
-# Register your models here.
+admin.site.register([Report, InfoItem])

@@ -1,8 +1,7 @@
 from rest_framework import (
     viewsets, status, views, exceptions, filters, permissions, pagination,
-    response, parsers, generics, mixins
+    response, parsers, generics,
 )
-from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from .serializers import (
     InformationSerializer, PosterSerializer,
@@ -39,20 +38,20 @@ class InformationViewSet(viewsets.ModelViewSet):
         'day'
     ]
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return response.Response(status=status.HTTP_204_NO_CONTENT)
-
-    def perform_destroy(self, instance):
-        if instance.poster is not None:
-            name = instance.poster.image.name
-            delete_media(name)
-        cadre = instance.information.all()
-        if cadre is not None:
-            for item in cadre:
-                delete_media(item.image.name)
-        instance.delete()
+    # def destroy(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     self.perform_destroy(instance)
+    #     return response.Response(status=status.HTTP_204_NO_CONTENT)
+    #
+    # def perform_destroy(self, instance):
+    #     if instance.poster is not None:
+    #         name = instance.poster.image.name
+    #         delete_media(name)
+    #     cadre = instance.information.all()
+    #     if cadre is not None:
+    #         for item in cadre:
+    #             delete_media(item.image.name)
+    #     instance.delete()
 
 
 class InformationCreateAPIView(generics.CreateAPIView):
@@ -103,6 +102,28 @@ class InformationUpdateAPIView(generics.UpdateAPIView):
         return self.update(request, *args, **kwargs)
 
 
+class InformationDestroyAPIView(generics.DestroyAPIView):
+    """
+    Destroy a model instance.
+    """
+    serializer_class = InformationSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = get_object_or_404(Information, pk=kwargs['pk'])
+        self.perform_destroy(instance)
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_destroy(self, instance):
+        if instance.poster is not None:
+            name = instance.poster.image.name
+            delete_media(name)
+        cadre = instance.information.all()
+        if cadre is not None:
+            for item in cadre:
+                delete_media(item.image.name)
+        instance.delete()
+
+
 class PosterCreateAPIView(generics.CreateAPIView):
     """Viewda ma'lum informisionga poster qo'shadi"""
     # parser_classes = (parsers.MultiPartParser,)
@@ -119,7 +140,7 @@ class PosterCreateAPIView(generics.CreateAPIView):
                 obj = get_object_or_404(Information, id=information_id)
                 obj.poster_id = serializer.data.get("pk")
                 obj.save()
-                return response.Response(data={"msg": "Ok"}, status=status.HTTP_201_CREATED)
+                return response.Response(data={"msg": "Ok", "data": serializer.data}, status=status.HTTP_201_CREATED)
         except Exception as e:
             raise ValidationError({"msg": f"Transaction failed: {e}"})
 
@@ -130,30 +151,32 @@ class PosterDeleteAPIView(generics.DestroyAPIView):
     serializer_class = PosterSerializer
 
     def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return response.Response(status=status.HTTP_204_NO_CONTENT)
-
-    def perform_destroy(self, instance):
-        instance.delete()
-
-    def delete_poster(self, request, *args, **kwargs):
+        pk = kwargs['pk']
         try:
             with transaction.atomic():
-                obj = self.get_object()
-                pk = obj.poster.pk
-                poster = Poster.objects.get(pk=pk)
-                delete_media(poster.image.name)
-                poster.delete()
+                instance = get_object_or_404(Poster, pk=pk)
+                delete_media(instance.image.name)
+                instance.delete()
                 return response.Response(data={"msg": "Ok"}, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             raise ValidationError({"msg": f"Transaction failed: {e}"})
 
 
-class CadreViewSet(viewsets.ModelViewSet):
-    queryset = Cadre.objects.all()
+# Kadrlar uchun views
+class CadreListAPIView(generics.ListAPIView):
+    """
+        Cadrelar Listini qaytaradi
+    """
+    # queryset = Cadre.objects.all()
     serializer_class = CadreSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Cadre.objects.filter(information_id=self.kwargs['information_id'])
+        return queryset
+
+
+class CadreCreateAPIView(generics.CreateAPIView):
+    serializer_class = CadreSerializer
     parser_classes = (parsers.MultiPartParser,)
 
     def create(self, request, *args, **kwargs):
@@ -163,6 +186,23 @@ class CadreViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return response.Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class CadreDeleteAPIView(generics.DestroyAPIView):
+    """
+        Destroy a model instance.
+    """
+    queryset = Cadre.objects.all()
+    serializer_class = CadreSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = get_object_or_404(Cadre, pk=self.kwargs['pk'])
+        delete_media(instance.image.name)
+        self.perform_destroy(instance)
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_destroy(self, instance):
+        instance.delete()
 
 
 class SerialAPIView(views.APIView):
@@ -213,50 +253,50 @@ class SerialAPIView(views.APIView):
             raise ValidationError({"msg": f"Transaction failed: {e}"})
 
 
-class CadreAPIView(views.APIView):
-    def get(self, request, *args, **kwargs):
-        information_id = kwargs['information_id']
-        if information_id is None:
-            raise exceptions.ValidationError({'msg': 'No cadre was found in this information'})
-
-        pk = kwargs.get('pk', None)
-        if pk is not None:
-            try:
-                cadre = get_object_or_404(Cadre, pk=pk, information_id=information_id)
-                serializer = CadreSerializer(cadre)
-                return response.Response(serializer.data)
-            except Serial.DoesNotExist:
-                raise exceptions.ValidationError({'msg': 'Cadre with this id does not exist'})
-
-        cadre = Cadre.objects.all()
-        serializer = CadreSerializer(cadre, many=True)
-        return response.Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request, *args, **kwargs):
-        information_id = kwargs['information_id']
-        serializer = CadreSerializer(data=request.data, context={'information_id': information_id})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return response.Response(data={"msg": "Ok"}, status=status.HTTP_201_CREATED)
-
-    def put(self, request, *args, **kwargs):
-        pk = kwargs['pk']
-        try:
-            cadre = Cadre.objects.get(pk=pk)
-            serializer = CadreSerializer(instance=cadre, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return response.Response(data={"msg": "Ok"}, status=status.HTTP_200_OK)
-        except Serial.DoesNotExist:
-            raise exceptions.ValidationError({"msg": "Cadre with this id does not exist"})
-
-    def delete(self, *args, **kwargs):
-        pk = kwargs["pk"]
-        try:
-            with transaction.atomic():
-                cadre = Cadre.objects.get(pk=pk)
-                delete_media(cadre.image.name)
-                cadre.delete()
-                return response.Response(data={"msg": "Ok"}, status=status.HTTP_204_NO_CONTENT)
-        except Exception as e:
-            raise ValidationError({"msg": f"Transaction failed: {e}"})
+# class CadreAPIView(views.APIView):
+#     def get(self, request, *args, **kwargs):
+#         information_id = kwargs['information_id']
+#         if information_id is None:
+#             raise exceptions.ValidationError({'msg': 'No cadre was found in this information'})
+#
+#         pk = kwargs.get('pk', None)
+#         if pk is not None:
+#             try:
+#                 cadre = get_object_or_404(Cadre, pk=pk, information_id=information_id)
+#                 serializer = CadreSerializer(cadre)
+#                 return response.Response(serializer.data)
+#             except Serial.DoesNotExist:
+#                 raise exceptions.ValidationError({'msg': 'Cadre with this id does not exist'})
+#
+#         cadre = Cadre.objects.all()
+#         serializer = CadreSerializer(cadre, many=True)
+#         return response.Response(serializer.data, status=status.HTTP_200_OK)
+#
+#     def post(self, request, *args, **kwargs):
+#         information_id = kwargs['information_id']
+#         serializer = CadreSerializer(data=request.data, context={'information_id': information_id})
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return response.Response(data={"msg": "Ok"}, status=status.HTTP_201_CREATED)
+#
+#     def put(self, request, *args, **kwargs):
+#         pk = kwargs['pk']
+#         try:
+#             cadre = Cadre.objects.get(pk=pk)
+#             serializer = CadreSerializer(instance=cadre, data=request.data)
+#             serializer.is_valid(raise_exception=True)
+#             serializer.save()
+#             return response.Response(data={"msg": "Ok"}, status=status.HTTP_200_OK)
+#         except Serial.DoesNotExist:
+#             raise exceptions.ValidationError({"msg": "Cadre with this id does not exist"})
+#
+#     def delete(self, *args, **kwargs):
+#         pk = kwargs["pk"]
+#         try:
+#             with transaction.atomic():
+#                 cadre = Cadre.objects.get(pk=pk)
+#                 delete_media(cadre.image.name)
+#                 cadre.delete()
+#                 return response.Response(data={"msg": "Ok"}, status=status.HTTP_204_NO_CONTENT)
+#         except Exception as e:
+#             raise ValidationError({"msg": f"Transaction failed: {e}"})
