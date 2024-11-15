@@ -22,7 +22,10 @@ class LoginAPIView(generics.GenericAPIView):
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
-        return response.Response(serializer.validated_data, status=status.HTTP_200_OK)
+        return response.Response(
+            serializer.validated_data,
+            status=status.HTTP_200_OK
+        )
 
 
 class UserViewSet(viewsets.ModelViewSet):

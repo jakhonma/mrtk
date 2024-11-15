@@ -16,9 +16,6 @@ class AbstractClassSerializer(serializers.Serializer):
 class DepartmentSerializer(AbstractClassSerializer):
     def create(self, validated_data):
         return Department.objects.create(**validated_data)
-    # class Meta:
-    #     model = Department
-    #     fields = '__all__'
 
 
 class FondSerializer(serializers.Serializer):
@@ -80,3 +77,10 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'fond', 'children']
+
+
+class HelperListSerializer(serializers.Serializer):
+    mtvs = MtvSerializer(many=True)
+    formats = FormatSerializer(many=True)
+    regions = RegionSerializer(many=True)
+    languages = LanguageSerializer(many=True)

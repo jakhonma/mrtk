@@ -1,11 +1,11 @@
-from rest_framework import viewsets, generics, response
+from rest_framework import viewsets, generics, response, views
 from .models import Department, Fond, Category, Mtv, Format, Language, Region
 from helper.serializers import (
     DepartmentSerializer, FondSerializer,
     CategorySerializer, MtvSerializer,
     FormatSerializer, LanguageSerializer,
     RegionSerializer, NestedCategorySerializer,
-    InformationCategorySerializer
+    InformationCategorySerializer, HelperListSerializer
 )
 from authentication.permissions import IsGroupUserPermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -33,7 +33,9 @@ class FontListDepartmentAPIView(generics.ListAPIView):
     serializer_class = FondSerializer
 
     def get_queryset(self):
-        queryset = Fond.objects.filter(department_id=self.kwargs['department_id'])
+        queryset = Fond.objects.filter(
+            department_id=self.kwargs['department_id']
+        )
         return queryset
 
 
@@ -79,3 +81,26 @@ class CategoryFondListView(generics.ListAPIView):
         return queryset
 
     serializer_class = InformationCategorySerializer
+
+
+class HelperListView(generics.ListAPIView):
+    """
+        List a queryset.
+        """
+
+    def list(self, request, *args, **kwargs):
+        mtvs = Mtv.objects.all()
+        regions = Region.objects.all()
+        languages = Language.objects.all()
+        formats = Format.objects.all()
+
+        data = {
+            "mtvs": MtvSerializer(mtvs, many=True).data,
+            "regions": RegionSerializer(regions, many=True).data,
+            "languages": LanguageSerializer(languages, many=True).data,
+            "formats": FormatSerializer(formats, many=True).data,
+        }
+
+        helpers = HelperListSerializer(data)
+
+        return response.Response(helpers.data)

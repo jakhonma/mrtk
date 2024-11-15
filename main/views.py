@@ -60,11 +60,18 @@ class InformationCreateAPIView(generics.CreateAPIView):
     serializer_class = InformationCreateUpdateSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer = self.get_serializer(
+            data=request.data,
+            context={'request': request}
+        )
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return response.Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return response.Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
 
     def perform_create(self, serializer):
         serializer.save()
@@ -109,7 +116,10 @@ class InformationDestroyAPIView(generics.DestroyAPIView):
     serializer_class = InformationSerializer
 
     def destroy(self, request, *args, **kwargs):
-        instance = get_object_or_404(Information, pk=kwargs['pk'])
+        instance = get_object_or_404(
+            Information,
+            pk=kwargs['pk']
+        )
         self.perform_destroy(instance)
         return response.Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -137,10 +147,16 @@ class PosterCreateAPIView(generics.CreateAPIView):
         serializer.save()
         try:
             with transaction.atomic():
-                obj = get_object_or_404(Information, id=information_id)
+                obj = get_object_or_404(
+                    Information,
+                    id=information_id
+                )
                 obj.poster_id = serializer.data.get("pk")
                 obj.save()
-                return response.Response(data={"msg": "Ok", "data": serializer.data}, status=status.HTTP_201_CREATED)
+                return response.Response(
+                    data={"msg": "Ok", "data": serializer.data},
+                    status=status.HTTP_201_CREATED
+                )
         except Exception as e:
             raise ValidationError({"msg": f"Transaction failed: {e}"})
 
@@ -154,10 +170,16 @@ class PosterDeleteAPIView(generics.DestroyAPIView):
         pk = kwargs['pk']
         try:
             with transaction.atomic():
-                instance = get_object_or_404(Poster, pk=pk)
+                instance = get_object_or_404(
+                    Poster,
+                    pk=pk
+                )
                 delete_media(instance.image.name)
                 instance.delete()
-                return response.Response(data={"msg": "Ok"}, status=status.HTTP_204_NO_CONTENT)
+                return response.Response(
+                    data={"msg": "Ok"},
+                    status=status.HTTP_204_NO_CONTENT
+                )
         except Exception as e:
             raise ValidationError({"msg": f"Transaction failed: {e}"})
 
@@ -181,11 +203,18 @@ class CadreCreateAPIView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         information_id = kwargs['information_id']
-        serializer = self.get_serializer(data=request.data, context={'information_id': information_id})
+        serializer = self.get_serializer(
+            data=request.data,
+            context={'information_id': information_id}
+        )
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return response.Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return response.Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
 
 
 class CadreDeleteAPIView(generics.DestroyAPIView):

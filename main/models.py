@@ -129,10 +129,6 @@ class Information(models.Model):
     class Meta:
         ordering = ['-created']
 
-    # def clean(self):
-    #     if not self.is_serial:
-    #         raise ValidationError("Qism qushish mumkin emas")
-
     def __str__(self):
         return self.title
 

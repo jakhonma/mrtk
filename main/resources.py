@@ -8,11 +8,13 @@ from helper.models import Fond, Category, Mtv, Region, Language, Format
 class FondForeignKeyWidget(ForeignKeyWidget):
 
     def clean(self, value, row=None, **kwargs):
-        # val = super().clean(value)
         department_name = str(row['department']).strip()
         fond_name = str(row["fond"]).strip()
         try:
-            fond = Fond.objects.get(name=fond_name, department__name=department_name)
+            fond = Fond.objects.get(
+                name=fond_name,
+                department__name=department_name
+            )
         except Fond.DoesNotExist:
             raise ValueError(f"Category {fond_name} does not exist in the database.")
         if fond is not None:
@@ -30,13 +32,21 @@ class CategoryParentForeignKeyWidget(ForeignKeyWidget):
         fond_name = row["fond"]
         department_name = str(row["department"]).strip()
         try:
-            fond = Fond.objects.get(name=fond_name, department__name=department_name)
-            print(fond)
-            category = Category.objects.get(name=category_name, fond=fond)
+            fond = Fond.objects.get(
+                name=fond_name,
+                department__name=department_name
+            )
+            category = Category.objects.get(
+                name=category_name,
+                fond=fond
+            )
         except Category.DoesNotExist:
             raise ValueError(f"Category {category_name} does not exist in the database.")
         if parent_name is not None:
-            return Category.objects.filter(name=parent_name, parent=category)[0]
+            return Category.objects.filter(
+                name=parent_name,
+                parent=category
+            )[0]
         elif category_name is not None:
             return category
         else:
@@ -51,25 +61,50 @@ class InformationAdminResource(resources.ModelResource):
     fond = fields.Field(
         column_name='fond',
         attribute='fond',
-        widget=FondForeignKeyWidget(model=Fond, field='name')
+        widget=FondForeignKeyWidget(
+            model=Fond,
+            field='name'
+        )
     )
 
     category = fields.Field(
         column_name='category',
         attribute='category',
-        widget=CategoryParentForeignKeyWidget(model=Category, field='name')
+        widget=CategoryParentForeignKeyWidget(
+            model=Category,
+            field='name'
+        )
     )
 
     employee = fields.Field(
         column_name='emp',
         attribute='employee',
-        widget=ForeignKeyWidget(User, field='username')
+        widget=ForeignKeyWidget(
+            User,
+            field='username'
+        )
     )
 
-    mtv = fields.Field(column_name='mtv', attribute='mtv', widget=ManyToManyWidget(Mtv, field='name'))
-    region = fields.Field(column_name='region', attribute='region', widget=ManyToManyWidget(Region, field='name'))
-    language = fields.Field(column_name='language', attribute='language', widget=ManyToManyWidget(Language, field='name'))
-    format = fields.Field(column_name='format', attribute='format', widget=ManyToManyWidget(Format, field='name'))
+    mtv = fields.Field(
+        column_name='mtv',
+        attribute='mtv',
+        widget=ManyToManyWidget(Mtv, field='name')
+    )
+    region = fields.Field(
+        column_name='region',
+        attribute='region',
+        widget=ManyToManyWidget(Region, field='name')
+    )
+    language = fields.Field(
+        column_name='language',
+        attribute='language',
+        widget=ManyToManyWidget(Language, field='name')
+    )
+    format = fields.Field(
+        column_name='format',
+        attribute='format',
+        widget=ManyToManyWidget(Format, field='name')
+    )
 
     def before_import_row(self, row, **kwargs):
         self.employee = kwargs['user']

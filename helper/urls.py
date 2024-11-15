@@ -18,4 +18,6 @@ urlpatterns = [
     # Filter
     path('department-fond/<int:department_id>/', views.FontListDepartmentAPIView.as_view()),
     path('fond-category/<int:fond_id>/', views.CategoryFondListView.as_view()),
+
+    path('helper-list-view/', views.HelperListView.as_view()),
 ]

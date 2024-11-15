@@ -14,7 +14,10 @@ class UserManager(BaseUserManager):
             self.model._meta.app_label, self.model._meta.object_name
         )
         username = GlobalUserModel.normalize_username(username)
-        user = self.model(username=username, **extra_fields)
+        user = self.model(
+            username=username,
+            **extra_fields
+        )
         user.password = make_password(password)
         print(user.password)
         user.save(using=self._db)
@@ -68,13 +71,12 @@ class AdminManager(UserManager):
     ADMIN = 'ADMIN'
 
     def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)\
-                    .filter(
-                        role=self.ADMIN,
-                        is_superuser=True,
-                        is_active=True,
-                        is_staff=True
-                    )
+        queryset = super().get_queryset(*args, **kwargs).filter(
+            role=self.ADMIN,
+            is_superuser=True,
+            is_active=True,
+            is_staff=True
+        )
         return queryset
 
 
@@ -82,13 +84,12 @@ class LeaderManager(UserManager):
     LEADER = 'LEADER'
 
     def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)\
-                    .filter(
-                        role=self.LEADER,
-                        is_superuser=False,
-                        is_active=True,
-                        is_staff=False
-                    )
+        queryset = super().get_queryset(*args, **kwargs).filter(
+            role=self.LEADER,
+            is_superuser=False,
+            is_active=True,
+            is_staff=False
+        )
         return queryset
 
 
@@ -96,13 +97,12 @@ class EmployeeManager(UserManager):
     EMPLOYEE = 'EMPLOYEE'
 
     def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)\
-                    .filter(
-                        role=self.EMPLOYEE,
-                        is_superuser=False,
-                        is_active=True,
-                        is_staff=False
-                    )
+        queryset = super().get_queryset(*args, **kwargs).filter(
+            role=self.EMPLOYEE,
+            is_superuser=False,
+            is_active=True,
+            is_staff=False
+        )
         return queryset
 
 
@@ -110,8 +110,7 @@ class LowUserManager(UserManager):
     LOW_USER = 'LOW_USER'
 
     def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs) \
-            .filter(
+        queryset = super().get_queryset(*args, **kwargs).filter(
             role=self.LOW_USER,
             is_superuser=False,
             is_active=True,
