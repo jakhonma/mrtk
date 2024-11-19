@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'main.apps.MainConfig',
     'report.apps.ReportConfig',
     'letter.apps.LetterConfig',
+    'controller.apps.ControllerConfig',
 ]
 
 MIDDLEWARE = [
