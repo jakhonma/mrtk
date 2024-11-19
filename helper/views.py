@@ -7,7 +7,7 @@ from helper.serializers import (
     RegionSerializer, NestedCategorySerializer,
     InformationCategorySerializer, HelperListSerializer
 )
-from authentication.permissions import IsGroupUserPermission
+from controller.permissions import IsGroupUserPermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q

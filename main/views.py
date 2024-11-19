@@ -11,7 +11,7 @@ from .models import Information, Poster, Cadre, Serial
 from django_filters.rest_framework import DjangoFilterBackend
 from .utils import delete_media
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from authentication.permissions import IsOwnerPermission
+from controller.permissions import IsOwnerPermission
 from rest_framework.authentication import BasicAuthentication
 from django.db import transaction
 from django.shortcuts import get_object_or_404
