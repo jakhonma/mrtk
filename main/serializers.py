@@ -33,6 +33,9 @@ class InformationSerializer(serializers.ModelSerializer):
 
 
 class InformationCreateUpdateSerializer(serializers.Serializer):
+    """
+        Informationni Create va Update qiladigan Serializer 
+    """
     COLOURED = 'coloured'
     WRITE_BLACK = 'write_black'
     COLORS = (

@@ -18,6 +18,7 @@ urlpatterns = [
     # Information kiritayotganda Helper Filter
     path('department-fond/<int:department_id>/', views.FontListDepartmentAPIView.as_view()),
     path('fond-category/<int:fond_id>/', views.CategoryFondListView.as_view()),
+    path('category-parent/<int:category_id>/', views.ParentCategoryListView.as_view()),
 
     # Mtv, Region, Language va Format List
     path('helper-list-view/', views.HelperListView.as_view()),

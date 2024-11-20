@@ -80,6 +80,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class HelperListSerializer(serializers.Serializer):
+    """
+        Mtv, Region, Language va Format Listni qaytaradigan Serializer 
+    """
     mtvs = MtvSerializer(many=True)
     formats = FormatSerializer(many=True)
     regions = RegionSerializer(many=True)

@@ -29,16 +29,6 @@ class FondViewSet(AbstractClassViewSet):
     serializer_class = FondSerializer
 
 
-class FontListDepartmentAPIView(generics.ListAPIView):
-    serializer_class = FondSerializer
-
-    def get_queryset(self):
-        queryset = Fond.objects.filter(
-            department_id=self.kwargs['department_id']
-        )
-        return queryset
-
-
 class MTVViewSet(AbstractClassViewSet):
     queryset = Mtv.objects.all()
     serializer_class = MtvSerializer
@@ -70,14 +60,38 @@ class CategoryListView(generics.ListAPIView):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = NestedCategorySerializer
+    
+
+class FontListDepartmentAPIView(generics.ListAPIView):
+    """
+        Departmentga tegishli Fondlarni qaytaradigan View
+    """
+    serializer_class = FondSerializer
+
+    def get_queryset(self):
+        queryset = Fond.objects.filter(
+            department_id=self.kwargs['department_id']
+        )
+        return queryset
 
 
 class CategoryFondListView(generics.ListAPIView):
+    """
+        Fondga tegishli Categorylarni qaytaradigan View
+    """
     def get_queryset(self):
-        queryset = Category.objects.filter(
-            Q(fond_id=self.kwargs['fond_id']) |
-            Q(parent__fond_id=self.kwargs['fond_id'])
-        )
+        queryset = Category.objects.filter(fond_id=self.kwargs['fond_id'], fond__isnull=False)
+        return queryset
+
+    serializer_class = InformationCategorySerializer
+
+
+class ParentCategoryListView(generics.ListAPIView):
+    """
+        Parentga tegishli Categorylarni qaytaradigan View
+    """
+    def get_queryset(self):
+        queryset = Category.objects.filter(parent_id=self.kwargs['category_id'], fond__isnull=True)
         return queryset
 
     serializer_class = InformationCategorySerializer
@@ -85,9 +99,8 @@ class CategoryFondListView(generics.ListAPIView):
 
 class HelperListView(generics.ListAPIView):
     """
-        List a queryset.
-        """
-
+        Mtv, Region, Language va Format Listni qaytaradigan View 
+    """
     def list(self, request, *args, **kwargs):
         mtvs = Mtv.objects.all()
         regions = Region.objects.all()

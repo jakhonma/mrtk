@@ -185,6 +185,8 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:5173',
-)
+# CORS_ORIGIN_WHITELIST = (
+#     'http://localhost:5173',
+# )
+
+CORS_ORIGIN_ALLOW_ALL=True
