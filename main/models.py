@@ -29,7 +29,7 @@ class Poster(models.Model):
 class Information(models.Model):
     class Colors(models.TextChoices):
         COLOURED = 'coloured', 'coloured'
-        WRITE_BLACK = 'white-black', 'white-black'
+        WHITE_BLACK = 'white-black', 'white-black'
 
     class Material(models.TextChoices):
         ETHER = 'ether', 'ether'
@@ -84,8 +84,8 @@ class Information(models.Model):
         blank=True
     )
     title = models.CharField(max_length=255, db_index=True)
-    mtv_index = models.CharField(max_length=100)
-    location_on_server = models.CharField(max_length=200)
+    mtv_index = models.CharField(max_length=100, null=True, blank=True)
+    location_on_server = models.CharField(max_length=200, null=True, blank=True)
     color = models.CharField(
         max_length=12,
         choices=Colors.choices,

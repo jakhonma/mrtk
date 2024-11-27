@@ -37,21 +37,23 @@ class InformationViewSet(viewsets.ModelViewSet):
         'month',
         'day'
     ]
+    http_method_names = ['get']
 
-    # def destroy(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     self.perform_destroy(instance)
-    #     return response.Response(status=status.HTTP_204_NO_CONTENT)
-    #
-    # def perform_destroy(self, instance):
-    #     if instance.poster is not None:
-    #         name = instance.poster.image.name
-    #         delete_media(name)
-    #     cadre = instance.information.all()
-    #     if cadre is not None:
-    #         for item in cadre:
-    #             delete_media(item.image.name)
-    #     instance.delete()
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        count = queryset.count()
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        data = {
+            'count': count,
+            'information': serializer.data
+        }
+        return response.Response(data=data)
 
 
 class InformationCreateAPIView(generics.CreateAPIView):

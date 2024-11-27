@@ -11,12 +11,31 @@ from controller.permissions import IsGroupUserPermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 
 class AbstractClassViewSet(viewsets.ModelViewSet):
     # permission_classes = [IsGroupUserPermission, IsAuthenticated]
     # authentication_classes = [JWTAuthentication]
-    pass
+
+    @method_decorator(cache_page(60 * 5))
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
+    @method_decorator(cache_page(60 * 5))
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return response.Response(serializer.data)
 
 
 class DepartmentViewSet(AbstractClassViewSet):
@@ -80,7 +99,10 @@ class CategoryFondListView(generics.ListAPIView):
         Fondga tegishli Categorylarni qaytaradigan View
     """
     def get_queryset(self):
-        queryset = Category.objects.filter(fond_id=self.kwargs['fond_id'], fond__isnull=False)
+        queryset = Category.objects.filter(
+            fond_id=self.kwargs['fond_id'],
+            fond__isnull=False
+        )
         return queryset
 
     serializer_class = InformationCategorySerializer
@@ -91,7 +113,10 @@ class ParentCategoryListView(generics.ListAPIView):
         Parentga tegishli Categorylarni qaytaradigan View
     """
     def get_queryset(self):
-        queryset = Category.objects.filter(parent_id=self.kwargs['category_id'], fond__isnull=True)
+        queryset = Category.objects.filter(
+            parent_id=self.kwargs['category_id'],
+            fond__isnull=True
+        )
         return queryset
 
     serializer_class = InformationCategorySerializer
@@ -101,6 +126,7 @@ class HelperListView(generics.ListAPIView):
     """
         Mtv, Region, Language va Format Listni qaytaradigan View 
     """
+    @method_decorator(cache_page(60 * 5))
     def list(self, request, *args, **kwargs):
         mtvs = Mtv.objects.all()
         regions = Region.objects.all()
