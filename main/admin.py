@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.contrib import admin
-from .models import Information, Poster, Cadre
+from main.models import Information, Poster, Cadre, Serial
 from import_export.admin import ImportExportModelAdmin
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from main.resources import InformationAdminResource
@@ -37,6 +37,11 @@ class InformationAdmin(ImportExportModelAdmin):
 
     def get_duration(self, obj):
         return f"{obj.duration}"
+
+
+@admin.register(Serial)
+class SerialAdmin(admin.ModelAdmin):
+    list_display = ['id', 'part', 'duration']
 
 
 admin.site.register([Poster, Cadre])

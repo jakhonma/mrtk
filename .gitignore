@@ -4,3 +4,4 @@
 /.idea/
 media/
 *.pyc
+*__pycache__

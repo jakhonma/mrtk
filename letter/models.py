@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
-from main.utils import code_generator, directory_path
+from utils.generator import code_generator
+from utils.directory import directory_path
 
 
 class Sender(models.Model):

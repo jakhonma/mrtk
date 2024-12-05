@@ -8,6 +8,7 @@ class UserManager(BaseUserManager):
     use_in_migrations = True
 
     def _create_user(self, username, password, **extra_fields):
+        print(111111111111111111111111)
         if not username:
             raise ValueError("The given username must be set")
         GlobalUserModel = apps.get_model(
@@ -19,7 +20,7 @@ class UserManager(BaseUserManager):
             **extra_fields
         )
         user.password = make_password(password)
-        print(user.password)
+        print(user)
         user.save(using=self._db)
         return user
 

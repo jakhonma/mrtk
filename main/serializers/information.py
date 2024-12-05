@@ -1,21 +1,18 @@
-from datetime import date
-from django.core.validators import MinValueValidator, MaxValueValidator
 from rest_framework import serializers
-from rest_framework.exceptions import PermissionDenied, ValidationError
-from .utils import add_many_to_many, edit_many_to_many
+from utils.relationship import add_many_to_many, edit_many_to_many
 from helper.models import Mtv, Region, Language, Format
-from .models import Information, Poster, Cadre, Serial
+from main.serializers import PosterSerializer
+from django.core.validators import MinValueValidator, MaxValueValidator
+from main.models import Information
+from datetime import date
 from helper.serializers import (
-    FondSerializer, NestedCategorySerializer,
-    CategorySerializer, MtvSerializer, RegionSerializer,
-    LanguageSerializer, FormatSerializer, InformationCategorySerializer
+    FondSerializer, 
+    MtvSerializer, 
+    RegionSerializer,
+    LanguageSerializer, 
+    FormatSerializer, 
+    InformationCategorySerializer
 )
-
-
-class PosterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Poster
-        fields = ['pk', 'image']
 
 
 class InformationSerializer(serializers.ModelSerializer):
@@ -110,8 +107,8 @@ class InformationCreateUpdateSerializer(serializers.Serializer):
     single_code = serializers.IntegerField(read_only=True)
     restoration = serializers.BooleanField(default=False)
     confidential = serializers.BooleanField(default=False)
-    brief_data = serializers.CharField(max_length=500, allow_blank=True)
-    summary = serializers.CharField(max_length=500, allow_blank=True)
+    brief_data = serializers.CharField(max_length=1000, allow_blank=True)
+    summary = serializers.CharField(max_length=1000, allow_blank=True)
     is_serial = serializers.BooleanField(default=False)
     created = serializers.DateTimeField(read_only=True)
     updated = serializers.DateTimeField(read_only=True)
@@ -169,34 +166,3 @@ class InformationCreateUpdateSerializer(serializers.Serializer):
         edit_many_to_many(instance.format, formats)
 
         return instance
-
-
-class CadreSerializer(serializers.Serializer):
-    image = serializers.ImageField()
-    information_id = serializers.IntegerField(required=False)
-
-    def create(self, validated_data):
-        validated_data['information_id'] = self.context['information_id']
-        return Cadre.objects.create(**validated_data)
-
-
-class SerialSerializer(serializers.Serializer):
-    information_id = serializers.IntegerField(required=False)
-    part = serializers.IntegerField(required=False)
-    duration = serializers.TimeField()
-
-    def create(self, validated_data):
-        validated_data['information_id'] = self.context['information_id']
-        return Serial.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        instance.part = validated_data.get('part', instance.part)
-        instance.duration = validated_data.get('duration', instance.duration)
-        instance.save()
-        return instance
-
-    def validate(self, attrs):
-        information = Information.objects.get(pk=attrs['information_id'])
-        if not information.is_serial:
-            raise ValidationError({"msg": "Serialga qushing"})
-        return attrs

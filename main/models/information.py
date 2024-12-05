@@ -1,29 +1,7 @@
-from datetime import date
-from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from main.utils import directory_path, code_generator
-
-
-class Poster(models.Model):
-    objects = models.Manager()
-    image = models.ImageField(upload_to=directory_path, blank=True, null=True)
-
-    def clean(self):
-        MAX_SIZE = 1024*1024
-        MIN_SIZE = 1024
-        image_size = self.image.size
-        width, height = self.image.width, self.image.height
-        if image_size >= MAX_SIZE:
-            raise ValidationError("1 Mbdan kichikroq rasm kiriting")
-        if image_size < MIN_SIZE:
-            raise ValidationError("1 Kbdan katta rasm kiriting")
-        if width > height:
-            raise ValidationError("Poster uchun o'lcham notug'ri(160X230)")
-        return self
-
-    def __str__(self):
-        return f"poster -> {self.pk}"
+from django.core.validators import MinValueValidator, MaxValueValidator
+from datetime import date
+from utils.generator import code_generator
 
 
 class Information(models.Model):
@@ -56,29 +34,25 @@ class Information(models.Model):
     mtv = models.ManyToManyField(
         'helper.Mtv',
         related_name='mtv',
-        null=True,
         blank=True
     )
     region = models.ManyToManyField(
         'helper.Region',
         related_name='region',
-        null=True,
         blank=True
     )
     language = models.ManyToManyField(
         'helper.Language',
         related_name='language',
-        null=True,
         blank=True
     )
     format = models.ManyToManyField(
         'helper.Format',
         related_name='format',
-        null=True,
         blank=True
     )
     poster = models.OneToOneField(
-        Poster,
+        'main.Poster',
         on_delete=models.SET_NULL,
         null=True,
         blank=True
@@ -117,7 +91,10 @@ class Information(models.Model):
         MinValueValidator(1, message="Kunni tug'ri kiriting?"),
         MaxValueValidator(31, message="Kunni tug'ri kiriting?")
     ])
-    single_code = models.PositiveBigIntegerField(default=code_generator(), editable=False)
+    single_code = models.PositiveBigIntegerField(
+        default=code_generator(), 
+        editable=False
+    )
     restoration = models.BooleanField(default=False)
     confidential = models.BooleanField(default=False)
     brief_data = models.TextField(null=True, blank=True, db_index=True)
@@ -131,28 +108,3 @@ class Information(models.Model):
 
     def __str__(self):
         return self.title
-
-
-class Cadre(models.Model):
-    image = models.ImageField(upload_to=directory_path)
-    information = models.ForeignKey(
-        'main.Information',
-        on_delete=models.CASCADE,
-        related_name='information'
-    )
-
-    def __str__(self):
-        return f'video_cadre - {self.pk}'
-
-
-class Serial(models.Model):
-    information = models.ForeignKey(
-        'main.Information',
-        on_delete=models.CASCADE,
-        related_name='serials'
-    )
-    part = models.PositiveSmallIntegerField(null=True, blank=True)
-    duration = models.TimeField()
-
-    def __str__(self):
-        return self.information.title

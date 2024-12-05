@@ -2,7 +2,7 @@
 
 import django.core.validators
 import django.db.models.deletion
-import main.utils
+import utils.directory
 from django.conf import settings
 from django.db import migrations, models
 
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             name='Notice',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pdf', models.FileField(upload_to=main.utils.directory_path, validators=[django.core.validators.FileExtensionValidator(['pdf'])])),
+                ('pdf', models.FileField(upload_to=utils.directory.directory_path, validators=[django.core.validators.FileExtensionValidator(['pdf'])])),
                 ('code', models.PositiveBigIntegerField(default=1571266020, unique=True)),
             ],
         ),

@@ -1,3 +1,4 @@
+from typing import Any
 from .models import Department, Fond, Category, Mtv, Format, Language, Region
 from rest_framework import serializers
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -16,6 +17,11 @@ class AbstractClassSerializer(serializers.Serializer):
 class DepartmentSerializer(AbstractClassSerializer):
     def create(self, validated_data):
         return Department.objects.create(**validated_data)
+
+    def validate_name(self, attr: Any):
+        if Department.objects.filter(name=attr).exists():
+            raise serializers.ValidationError("Department with this name already exists.")
+        return attr
 
 
 class FondSerializer(serializers.Serializer):

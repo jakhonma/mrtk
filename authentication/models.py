@@ -4,10 +4,11 @@ from django.contrib.auth.models import Group, PermissionsMixin, AbstractBaseUser
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from authentication.managers import UserManager, AdminManager, LeaderManager, EmployeeManager, LowUserManager
+from utils.choices import UserRoleEnum
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    class Roles(models.TextChoices):
+    class UserRole(models.TextChoices):
         ADMIN = 'ADMIN', 'ADMIN'
         LEADER = 'LEADER', 'LEADER'
         EMPLOYEE = 'EMPLOYEE', 'EMPLOYEE'
@@ -57,7 +58,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     role = models.CharField(
         max_length=10,
-        choices=Roles.choices,
+        choices=UserRole.choices,
+        default=UserRole.LOW_USER,
         blank=True
     )
     groups = models.ForeignKey(
@@ -102,7 +104,7 @@ class AdminUser(User):
     objects = AdminManager()
 
     def save(self, *args, **kwargs):
-        self.type = User.Roles.ADMIN
+        self.type = UserRoleEnum.ADMIN
         return super().save(*args, **kwargs)
 
 
@@ -115,7 +117,7 @@ class LeaderUser(User):
     objects = LeaderManager()
 
     def save(self, *args, **kwargs):
-        self.type = User.Roles.LEADER
+        self.type = UserRoleEnum.LEADER
         return super().save(*args, **kwargs)
 
 
@@ -128,7 +130,7 @@ class EmployeeUser(User):
     objects = EmployeeManager()
 
     def save(self, *args, **kwargs):
-        self.type = User.Roles.EMPLOYEE
+        self.type = UserRoleEnum.EMPLOYEE
         return super().save(*args, **kwargs)
 
 
@@ -141,5 +143,5 @@ class LowUser(User):
     objects = LowUserManager()
 
     def save(self, *args, **kwargs):
-        self.type = User.Roles.LOW_USER
+        self.type = UserRoleEnum.LOW_USER
         return super().save(*args, **kwargs)

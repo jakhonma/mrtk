@@ -40,17 +40,17 @@ class CategoryParentForeignKeyWidget(ForeignKeyWidget):
                 name=category_name,
                 fond=fond
             )
+            if parent_name is not None:
+                return Category.objects.get(
+                    name=parent_name,
+                    parent=category
+                )
+            elif category_name is not None:
+                return category
+            else:
+                return None
         except Category.DoesNotExist:
             raise ValueError(f"Category {category_name} does not exist in the database.")
-        if parent_name is not None:
-            return Category.objects.filter(
-                name=parent_name,
-                parent=category
-            )[0]
-        elif category_name is not None:
-            return category
-        else:
-            return None
 
 
 class InformationAdminResource(resources.ModelResource):

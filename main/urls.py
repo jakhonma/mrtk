@@ -18,12 +18,14 @@ urlpatterns = [
     path('information/<int:information_id>/delete-poster/<int:pk>/', views.PosterDeleteAPIView.as_view()),
 
     # Cadre
-    path('information/<int:information_id>/list-cadre/', views.CadreListAPIView.as_view()),
-    path('information/<int:information_id>/create-cadre/', views.CadreCreateAPIView.as_view()),
-    path('information/<int:information_id>/delete-cadre/<int:pk>/', views.CadreDeleteAPIView.as_view()),
+    path('information/<int:information_id>/list-cadre/', views.CadreListAPIView.as_view()), #Informationga tegishli Cadrelar list
+    path('information/<int:information_id>/create-cadre/', views.CadreCreateAPIView.as_view()), #Informationga tegishli Cadrelar qo'shish
+    path('information/<int:information_id>/delete-cadre/<int:pk>/', views.CadreDeleteAPIView.as_view()), #Informationga tegishli Cadrelar o'chirish
 
     # Serial
-    path('information/<int:information_id>/serials/', views.SerialAPIView.as_view()),
-    path('information/<int:information_id>/serial/', views.SerialAPIView.as_view()),
-    path('information/<int:information_id>/serial/<int:pk>/', views.SerialAPIView.as_view()),
+    path('information/<int:information_id>/list-serial/', views.SerialListAPiView.as_view()), #Informationga tegishli Seriallar listi
+    path('information/<int:information_id>/one-serial/<int:pk>/', views.SerialRetrieveAPIView.as_view()), #Informationga tegishli Seriallar bittasini olish
+    path('information/<int:information_id>/create-serial/', views.SerialCreateAPIView.as_view()), #Informationga tegishli Seriallar qo'shish
+    path('information/<int:information_id>/edit-serial/<int:pk>/', views.SerialUpdateAPIView.as_view()), #Informationga tegishli Seriallar o'zgartirish
+    path('information/<int:information_id>/delete-serial/<int:pk>/', views.SerialDestroyAPIView.as_view()), #Informationga tegishli Seriallar o'zgartirish
 ]
