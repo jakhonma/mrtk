@@ -25,16 +25,16 @@ class User(AbstractBaseUser, PermissionsMixin):
             "unique": _("A user with that username already exists."),
         },
     )
-    first_name = models.CharField(
+    full_name = models.CharField(
         _("first name"),
-        max_length=150,
+        max_length=200,
         blank=True
     )
-    last_name = models.CharField(
-        _("last name"),
-        max_length=150,
-        blank=True
-    )
+    # last_name = models.CharField(
+    #     _("last name"),
+    #     max_length=150,
+    #     blank=True
+    # )
     email = models.EmailField(
         _("email address"),
         blank=True
@@ -90,9 +90,9 @@ class User(AbstractBaseUser, PermissionsMixin):
             self.password = make_password(self.password)
         return super().save(*args, **kwargs)
 
-    def get_full_name(self):
-        full_name = f"{self.first_name} {self.last_name}"
-        return full_name.strip()
+    # def get_full_name(self):
+    #     full_name = f"{self.first_name} {self.last_name}"
+    #     return full_name.strip()
 
 
 class AdminUser(User):

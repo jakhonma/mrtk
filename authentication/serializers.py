@@ -35,7 +35,7 @@ class LoginSerializer(serializers.Serializer):
         attrs["refresh"] = str(refresh)
         attrs["access"] = str(refresh.access_token)
 
-        del attrs["username"], attrs["password"]
+        del attrs["password"]
 
         return attrs
 
@@ -43,6 +43,22 @@ class LoginSerializer(serializers.Serializer):
     def get_token(cls, user):
         return cls.token_class.for_user(user)
 
+
+class UserRegisterSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150)
+    password = serializers.CharField(max_length=128)
+    full_name = serializers.CharField(max_length=200)
+
+    def create(self, validated_data):
+        return User.objects.create(**validated_data)
+    
+    def get_tokens(self, user: User):
+        refresh = RefreshToken.for_user(user)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
+    
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

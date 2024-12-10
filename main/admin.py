@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from django.contrib import admin
 from main.models import Information, Poster, Cadre, Serial
 from import_export.admin import ImportExportModelAdmin

@@ -6,7 +6,6 @@ from helper.models import Fond, Category, Mtv, Region, Language, Format
 
 
 class FondForeignKeyWidget(ForeignKeyWidget):
-
     def clean(self, value, row=None, **kwargs):
         department_name = str(row['department']).strip()
         fond_name = str(row["fond"]).strip()
@@ -26,7 +25,6 @@ class FondForeignKeyWidget(ForeignKeyWidget):
 class CategoryParentForeignKeyWidget(ForeignKeyWidget):
 
     def clean(self, value, row=None, **kwargs):
-        # val = super().clean(value)
         parent_name = row['parent']
         category_name = row["category"]
         fond_name = row["fond"]

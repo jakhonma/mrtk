@@ -3,6 +3,7 @@ from main.models import Cadre
 
 
 class CadreSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
     image = serializers.ImageField()
     information_id = serializers.IntegerField(required=False)
 

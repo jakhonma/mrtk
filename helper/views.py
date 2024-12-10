@@ -39,11 +39,15 @@ class AbstractClassViewSet(viewsets.ModelViewSet):
 
 
 class DepartmentViewSet(AbstractClassViewSet):
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated, IsGroupUserPermission]
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
 
 
 class FondViewSet(AbstractClassViewSet):
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated, IsGroupUserPermission]
     queryset = Fond.objects.all()
     serializer_class = FondSerializer
 

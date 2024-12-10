@@ -1,8 +1,7 @@
 from rest_framework import viewsets, generics, response, status
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-
 from authentication.models import User
-from authentication.serializers import UserSerializer, LoginSerializer
+from authentication.serializers import UserSerializer, LoginSerializer, UserRegisterSerializer
 
 
 class LoginAPIView(generics.GenericAPIView):
@@ -25,6 +24,29 @@ class LoginAPIView(generics.GenericAPIView):
         return response.Response(
             serializer.validated_data,
             status=status.HTTP_200_OK
+        )
+
+
+class RegisterAPIView(generics.GenericAPIView):
+    def get_queryset(self):
+        queryset = User.objects.all()
+        return queryset
+
+    def get_serializer_class(self):
+        serializer = UserRegisterSerializer
+        return serializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = UserRegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        tokens = serializer.get_tokens(user)
+        return response.Response(
+            data={
+                    'username': user.username,
+                    'tokens': tokens
+                }, 
+            status=status.HTTP_201_CREATED
         )
 
 
