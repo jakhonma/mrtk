@@ -1,3 +1,5 @@
+from django.db.models import Avg, Value
+from django.db.models.functions import Coalesce
 from rest_framework import (
     viewsets, status, exceptions, filters, permissions, pagination,
     response, generics
@@ -7,16 +9,13 @@ from main.models import Information
 from django_filters.rest_framework import DjangoFilterBackend
 from utils.media import delete_media
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from controller.permissions import IsOwnerPermission
+from controller.permissions import IsOwnerPermission, IsGroupUserPermission
 from rest_framework.authentication import BasicAuthentication
 from django.shortcuts import get_object_or_404
 
 
 class InformationViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Information.objects.all()
     serializer_class = InformationSerializer
-    # authentication_classes = [BasicAuthentication]
-    # permission_classes = [IsOwnerPermission]
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['region', 'language', 'year']
@@ -34,11 +33,26 @@ class InformationViewSet(viewsets.ReadOnlyModelViewSet):
         'is_serial'
     ]
 
+    def get_queryset(self):
+        print(self.request.user)
+        if not self.request.user.has_perm("can_confidential"):
+            queryset = Information.objects.filter(confidential=False).annotate(
+                rating=Avg('ratings__rating')
+            )
+        else:
+            queryset = Information.objects.all().annotate(
+                rating=Avg('ratings__rating')
+            )
+
+        return queryset
+
 
 class InformationCreateAPIView(generics.CreateAPIView):
     """
         Information creation API view
     """
+    # authentication_classes = (JWTAuthentication,)
+    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     queryset = Information.objects.all()
     serializer_class = InformationCreateUpdateSerializer
 
@@ -61,6 +75,8 @@ class InformationUpdateAPIView(generics.UpdateAPIView):
     """
         Update a model instance.
     """
+    # authentication_classes = (JWTAuthentication,)
+    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     queryset = Information.objects.all()
     serializer_class = InformationCreateUpdateSerializer
 
@@ -86,6 +102,8 @@ class InformationDestroyAPIView(generics.DestroyAPIView):
     """
         Destroy a model instance.
     """
+    # authentication_classes = (JWTAuthentication,)
+    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     serializer_class = InformationSerializer
 
     def destroy(self, request, *args, **kwargs):

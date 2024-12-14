@@ -2,7 +2,7 @@ from rest_framework import status, permissions, response, generics
 from main.serializers import SerialSerializer
 from main.models import Serial, Information
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from controller.permissions import IsOwnerPermission
+from controller.permissions import IsOwnerPermission, IsGroupUserPermission
 from rest_framework.authentication import BasicAuthentication
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Sum
@@ -63,7 +63,12 @@ class SerialCreateAPIView(generics.CreateAPIView):
     """
         Create a model instance.
     """
+    # authentication_classes = (JWTAuthentication,)
+    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     serializer_class = SerialSerializer
+
+    def get_queryset(self):
+        return Serial.objects.all()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(
@@ -84,6 +89,8 @@ class SerialUpdateAPIView(generics.UpdateAPIView):
     """
         Update a model instance.
     """
+    # authentication_classes = (JWTAuthentication,)
+    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     serializer_class = SerialSerializer
 
     def update(self, request, *args, **kwargs):
@@ -113,6 +120,9 @@ class SerialDestroyAPIView(generics.DestroyAPIView):
     """
         Destroy a model instance.
     """
+    # authentication_classes = (JWTAuthentication,)
+    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
+
     def destroy(self, request, *args, **kwargs):
         pk = kwargs['pk']
         instance = Serial.objects.get(

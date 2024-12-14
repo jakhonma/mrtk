@@ -25,8 +25,8 @@ class DepartmentSerializer(AbstractClassSerializer):
 
 
 class FondSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    department = DepartmentSerializer()
+    id = serializers.IntegerField(read_only=True)
+    department_id = serializers.IntegerField()
     name = serializers.CharField(max_length=150)
 
     def create(self, validated_data):

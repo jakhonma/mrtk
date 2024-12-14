@@ -1,6 +1,6 @@
 from rest_framework import viewsets, generics, permissions
-from controller.serializers import GroupSerializer, PermissionSerializer, ContentTypeSerializer
-from django.contrib.auth.models import Group, Permission, ContentType
+from controller.serializers import GroupSerializer, PermissionSerializer
+from django.contrib.auth.models import Group, Permission
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -15,7 +15,7 @@ class PermissionViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.AllowAny,)
 
 
-class ContentTypeViewSet(viewsets.ModelViewSet):
-    queryset = ContentType.objects.all()
-    serializer_class = ContentTypeSerializer
-    permission_classes = (permissions.AllowAny,)
+# class ContentTypeViewSet(viewsets.ModelViewSet):
+#     queryset = ContentType.objects.all()
+#     serializer_class = ContentTypeSerializer
+#     permission_classes = (permissions.AllowAny,)

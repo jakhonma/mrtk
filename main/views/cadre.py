@@ -4,7 +4,7 @@ from main.models import Cadre
 from django_filters.rest_framework import DjangoFilterBackend
 from utils.media import delete_media
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from controller.permissions import IsOwnerPermission
+from controller.permissions import IsOwnerPermission, IsGroupUserPermission
 from rest_framework.authentication import BasicAuthentication
 from django.shortcuts import get_object_or_404
 
@@ -13,6 +13,7 @@ class CadreListAPIView(generics.ListAPIView):
     """
         Cadrelar Listini qaytaradi
     """
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = CadreSerializer
 
     def get_queryset(self):
@@ -24,8 +25,13 @@ class CadreCreateAPIView(generics.CreateAPIView):
     """
         Create a model instance.
     """
+    permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     serializer_class = CadreSerializer
     parser_classes = (parsers.MultiPartParser,)
+
+    def get_queryset(self):
+        queryset = Cadre.objects.all()
+        return queryset
 
     def create(self, request, *args, **kwargs):
         information_id = kwargs['information_id']
@@ -47,6 +53,7 @@ class CadreDeleteAPIView(generics.DestroyAPIView):
     """
         Destroy a model instance.
     """
+    permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     queryset = Cadre.objects.all()
     serializer_class = CadreSerializer
 

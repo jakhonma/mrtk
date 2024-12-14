@@ -4,7 +4,7 @@ from main.serializers import PosterSerializer
 from main.models import Information, Poster
 from utils.media import delete_media
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from controller.permissions import IsOwnerPermission
+from controller.permissions import IsOwnerPermission, IsGroupUserPermission
 from rest_framework.authentication import BasicAuthentication
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -15,7 +15,8 @@ class PosterCreateAPIView(generics.CreateAPIView):
         Viewda ma'lum informisionga poster qo'shadi
     """
     # parser_classes = (parsers.MultiPartParser,)
-    permission_classes = []
+    # authentication_classes = (JWTAuthentication,)
+    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
 
     def create(self, request, *args, **kwargs):
         information_id = kwargs['information_id']
@@ -39,7 +40,8 @@ class PosterCreateAPIView(generics.CreateAPIView):
 
 
 class PosterDeleteAPIView(generics.DestroyAPIView):
-    permission_classes = []
+    # authentication_classes = (JWTAuthentication,)
+    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     queryset = Poster.objects.all()
     serializer_class = PosterSerializer
 

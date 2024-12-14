@@ -12,6 +12,9 @@ class IsGroupUserPermission(BasePermission):
     }
 
     def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+
         class_name = view.get_queryset().model.__name__.lower()
         code_name = self.METHOD.get(request.method) + class_name
         try:
@@ -23,6 +26,9 @@ class IsGroupUserPermission(BasePermission):
         return False
 
     def has_object_permission(self, request, view, obj):
+        if request.user.is_superuser:
+            return True
+
         class_name = obj.__class__.__name__.lower()
         code_name = self.METHOD.get(request.method) + class_name
         try:

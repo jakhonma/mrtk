@@ -3,7 +3,7 @@ from rest_framework import routers
 from main import views
 
 router = routers.DefaultRouter()
-router.register("information", views.InformationViewSet)
+router.register("information", views.InformationViewSet, basename="information")
 # router.register("cadre", views.CadreViewSet)
 
 urlpatterns = [
@@ -28,4 +28,11 @@ urlpatterns = [
     path('information/<int:information_id>/create-serial/', views.SerialCreateAPIView.as_view()), #Informationga tegishli Seriallar qo'shish
     path('information/<int:information_id>/edit-serial/<int:pk>/', views.SerialUpdateAPIView.as_view()), #Informationga tegishli Seriallar o'zgartirish
     path('information/<int:information_id>/delete-serial/<int:pk>/', views.SerialDestroyAPIView.as_view()), #Informationga tegishli Seriallar o'zgartirish
+
+    # bookmark
+    path('bookmark/list/', views.BookmarkListAPIView.as_view()),
+    path('bookmark/list-id/', views.BookmarkListIdAPIView.as_view()),
+    path('bookmark/create/', views.BookmarkCreateAPIView.as_view()),
+    path('<int:information_id>/bookmark/delete/', views.BookmarkDestroyAPIView.as_view()),
+
 ]

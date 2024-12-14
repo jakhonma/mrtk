@@ -16,6 +16,7 @@ from helper.serializers import (
 
 
 class InformationSerializer(serializers.ModelSerializer):
+    rating = serializers.FloatField(required=True)
     fond = FondSerializer(required=True)
     category = InformationCategorySerializer(required=False)
     mtv = MtvSerializer(many=True, read_only=True)
@@ -24,9 +25,20 @@ class InformationSerializer(serializers.ModelSerializer):
     format = FormatSerializer(many=True, read_only=True)
     poster = PosterSerializer(required=False, allow_null=True)
 
+    # def get_average_rating(self, obj):
+    #     return obj.average_rating
+
     class Meta:
         model = Information
-        fields = '__all__'
+        fields = [
+            'id', 'title', 'fond', 'category',
+            'mtv', 'region', 'language', 'format',
+            'poster', 'mtv_index', 'location_on_server',
+            'color', 'material', 'duration', 'year', 'month',
+            'day', 'single_code', 'restoration', 'confidential',
+            'brief_data', 'summary', 'is_serial', 'created'
+            , 'rating'
+        ]
 
 
 class InformationCreateUpdateSerializer(serializers.Serializer):

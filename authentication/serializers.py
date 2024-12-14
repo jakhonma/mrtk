@@ -1,9 +1,17 @@
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.models import User, AdminUser, LeaderUser, EmployeeUser
 from django.utils.translation import gettext_lazy as _
+from controller.serializers import GroupSerializer
+
+
+class UserSerializer(serializers.ModelSerializer):
+    groups = GroupSerializer(read_only=True)
+    class Meta:
+        model = User
+        fields = '__all__'
 
 
 class LoginSerializer(serializers.Serializer):
@@ -30,12 +38,13 @@ class LoginSerializer(serializers.Serializer):
         if user is None:
             raise ValidationError("Username and Password error")
 
+        login(authenticate_kwargs["request"], user)
         refresh = self.get_token(user)
 
         attrs["refresh"] = str(refresh)
         attrs["access"] = str(refresh.access_token)
 
-        del attrs["password"]
+        del attrs["password"], attrs["username"]
 
         return attrs
 
@@ -58,9 +67,4 @@ class UserRegisterSerializer(serializers.Serializer):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }
-    
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'

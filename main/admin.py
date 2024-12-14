@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.contrib import admin
-from main.models import Information, Poster, Cadre, Serial
+from main.models import Information, Poster, Cadre, Serial, Rating
 from import_export.admin import ImportExportModelAdmin
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from main.resources import InformationAdminResource
@@ -43,4 +43,4 @@ class SerialAdmin(admin.ModelAdmin):
     list_display = ['id', 'part', 'duration']
 
 
-admin.site.register([Poster, Cadre])
+admin.site.register([Poster, Cadre, Rating])

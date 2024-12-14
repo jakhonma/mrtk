@@ -16,7 +16,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['10.0.1.75']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -145,15 +144,15 @@ AUTH_USER_MODEL = "authentication.User"
 #     'django.contrib.auth.backends.ModelBackend',
 # )
 #
+
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.BasicAuthentication',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    ),
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,

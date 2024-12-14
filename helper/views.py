@@ -1,11 +1,11 @@
-from rest_framework import viewsets, generics, response, views
+from rest_framework import viewsets, generics, response, views, status
 from .models import Department, Fond, Category, Mtv, Format, Language, Region
 from helper.serializers import (
     DepartmentSerializer, FondSerializer,
     CategorySerializer, MtvSerializer,
     FormatSerializer, LanguageSerializer,
     RegionSerializer, NestedCategorySerializer,
-    InformationCategorySerializer, HelperListSerializer
+    InformationCategorySerializer, HelperListSerializer,
 )
 from controller.permissions import IsGroupUserPermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -39,15 +39,11 @@ class AbstractClassViewSet(viewsets.ModelViewSet):
 
 
 class DepartmentViewSet(AbstractClassViewSet):
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated, IsGroupUserPermission]
-    queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
+    queryset = Department.objects.all()
 
 
 class FondViewSet(AbstractClassViewSet):
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated, IsGroupUserPermission]
     queryset = Fond.objects.all()
     serializer_class = FondSerializer
 
@@ -73,6 +69,8 @@ class RegionViewSet(AbstractClassViewSet):
 
 
 class CategoryListView(generics.ListAPIView):
+    # permission_classes = [IsGroupUserPermission, IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
     serializer_class = CategorySerializer
 
     def get_queryset(self):
@@ -81,6 +79,8 @@ class CategoryListView(generics.ListAPIView):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
+    # permission_classes = [IsGroupUserPermission, IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
     queryset = Category.objects.all()
     serializer_class = NestedCategorySerializer
     
@@ -102,6 +102,7 @@ class CategoryFondListView(generics.ListAPIView):
     """
         Fondga tegishli Categorylarni qaytaradigan View
     """
+
     def get_queryset(self):
         queryset = Category.objects.filter(
             fond_id=self.kwargs['fond_id'],
@@ -116,6 +117,7 @@ class ParentCategoryListView(generics.ListAPIView):
     """
         Parentga tegishli Categorylarni qaytaradigan View
     """
+
     def get_queryset(self):
         queryset = Category.objects.filter(
             parent_id=self.kwargs['category_id'],
@@ -130,6 +132,9 @@ class HelperListView(generics.ListAPIView):
     """
         Mtv, Region, Language va Format Listni qaytaradigan View 
     """
+    # permission_classes = [IsGroupUserPermission, IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+
     @method_decorator(cache_page(60 * 5))
     def list(self, request, *args, **kwargs):
         mtvs = Mtv.objects.all()
