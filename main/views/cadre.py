@@ -65,4 +65,3 @@ class CadreDeleteAPIView(generics.DestroyAPIView):
 
     def perform_destroy(self, instance):
         instance.delete()
-

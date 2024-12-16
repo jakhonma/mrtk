@@ -3,7 +3,6 @@ from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from authentication import views
-from authentication.views import LoginAPIView
 
 router = routers.DefaultRouter()
 router.register('users', views.UserViewSet, basename='users')

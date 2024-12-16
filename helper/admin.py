@@ -9,11 +9,13 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 @admin.register(Fond)
 class FondAdmin(admin.ModelAdmin):
-    search_fields = ['id', 'name']
+    list_display = ['id', 'name']
+    search_fields = ['pk', 'name']
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     search_fields = ['id', 'name']
+
 
 admin.site.register([Mtv, Language, Region, Format])

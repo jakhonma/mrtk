@@ -2,13 +2,15 @@ from django.urls import path, include
 from rest_framework import routers
 from main import views
 
-router = routers.DefaultRouter()
-router.register("information", views.InformationViewSet, basename="information")
-# router.register("cadre", views.CadreViewSet)
+# router = routers.DefaultRouter()
+# router.register("information", views.InformationViewSet, basename="information")
+# # router.register("cadre", views.CadreViewSet)
 
 urlpatterns = [
     # Information
-    path('', include(router.urls)),
+    # path('', include(router.urls)),
+    path('information/', views.InformationListAPIView.as_view()),
+    path('information/<int:pk>/', views.InformationRetrieveAPIView.as_view()),
     path('create-information/', views.InformationCreateAPIView.as_view()),
     path('edit-information/<int:pk>/', views.InformationUpdateAPIView.as_view()),
     path('delete-information/<int:pk>/', views.InformationDestroyAPIView.as_view()),

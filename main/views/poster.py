@@ -15,8 +15,7 @@ class PosterCreateAPIView(generics.CreateAPIView):
         Viewda ma'lum informisionga poster qo'shadi
     """
     # parser_classes = (parsers.MultiPartParser,)
-    # authentication_classes = (JWTAuthentication,)
-    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
+    permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
 
     def create(self, request, *args, **kwargs):
         information_id = kwargs['information_id']
@@ -40,8 +39,7 @@ class PosterCreateAPIView(generics.CreateAPIView):
 
 
 class PosterDeleteAPIView(generics.DestroyAPIView):
-    # authentication_classes = (JWTAuthentication,)
-    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
+    permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     queryset = Poster.objects.all()
     serializer_class = PosterSerializer
 

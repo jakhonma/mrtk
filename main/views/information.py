@@ -1,4 +1,4 @@
-from django.db.models import Avg, Value
+from django.db.models import Avg, Value, Count, Q
 from django.db.models.functions import Coalesce
 from rest_framework import (
     viewsets, status, exceptions, filters, permissions, pagination,
@@ -10,49 +10,113 @@ from django_filters.rest_framework import DjangoFilterBackend
 from utils.media import delete_media
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from controller.permissions import IsOwnerPermission, IsGroupUserPermission
-from rest_framework.authentication import BasicAuthentication
 from django.shortcuts import get_object_or_404
+from main.filters import InformationFilter
 
 
-class InformationViewSet(viewsets.ReadOnlyModelViewSet):
+# class InformationViewSet(viewsets.ReadOnlyModelViewSet):
+#     serializer_class = InformationSerializer
+#     pagination_class = pagination.LimitOffsetPagination
+#     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+#     ordering_fields = ['region', 'language', 'year']
+#     search_fields = ['title', 'brief_data', 'summary', 'mtv_index', 'location_on_server']
+#     filterset_fields = [
+#         'fond__department__name',
+#         'category__parent__fond__department__name',
+#         'category__fond__name',
+#         'category__parent__name',
+#         'category__name',
+#         'region__name',
+#         'year',
+#         'month',
+#         'day',
+#         'is_serial'
+#     ]
+#
+#     def get_queryset(self):
+#         if not self.request.user.has_perm("can_confidential"):
+#             queryset = Information.objects\
+#             .filter(confidential=False)\
+#             .annotate(
+#                 rating=Avg('ratings__rating')
+#             )\
+#             .order_by('-created')
+#         else:
+#             queryset = Information.objects.all()\
+#             .annotate(
+#                 rating=Avg('ratings__rating')
+#             )\
+#             .order_by('-created')
+#
+#         return queryset
+#
+#     def retrieve(self, request, *args, **kwargs):
+#         instance = self.get_object()
+#         rating = instance.ratings.all().aggregate(rating=Avg("rating", default=0))
+#         instance.rating = rating["rating"]
+#         serializer = self.get_serializer(instance)
+#         return response.Response(serializer.data)
+
+
+class InformationListAPIView(generics.ListAPIView):
     serializer_class = InformationSerializer
+    permission_classes = [permissions.IsAuthenticated]
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['region', 'language', 'year']
     search_fields = ['title', 'brief_data', 'summary', 'mtv_index', 'location_on_server']
-    filterset_fields = [
-        'fond__department__name',
-        'category__parent__fond__department__name',
-        'category__fond__name',
-        'category__parent__name',
-        'category__name',
-        'region__name',
-        'year',
-        'month',
-        'day',
-        'is_serial'
-    ]
+    # filterset_fields = [
+    #     'fond__department__name',
+    #     'category__parent__fond__department__name',
+    #     'category__fond__name',
+    #     'category__parent__name',
+    #     'category__name',
+    #     'year',
+    #     'is_serial'
+    # ]
+    filterset_class = InformationFilter
 
     def get_queryset(self):
-        print(self.request.user)
         if not self.request.user.has_perm("can_confidential"):
-            queryset = Information.objects.filter(confidential=False).annotate(
-                rating=Avg('ratings__rating')
-            )
+            queryset = (Information.objects.filter(confidential=False).annotate(
+                    rating=Avg('ratings__rating')
+                ).annotate(
+                    serial_count=Count('serials', filter=Q(is_serial=True))
+                ).order_by('-created'))
         else:
             queryset = Information.objects.all().annotate(
-                rating=Avg('ratings__rating')
-            )
+                    rating=Avg('ratings__rating')
+                ).annotate(
+                        serial_count=Count('serials', filter=Q(is_serial=True))
+                ).order_by('-created')
 
         return queryset
+
+
+class InformationRetrieveAPIView(generics.RetrieveAPIView):
+    serializer_class = InformationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if not self.request.user.has_perm("can_confidential"):
+            queryset = Information.objects.filter(confidential=False)
+        else:
+            queryset = Information.objects.all()
+        return queryset
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        rating = instance.ratings.all().aggregate(rating=Avg("rating", default=0))
+        instance.rating = rating["rating"]
+        serializer = self.get_serializer(instance)
+        return response.Response(serializer.data)
 
 
 class InformationCreateAPIView(generics.CreateAPIView):
     """
         Information creation API view
     """
-    # authentication_classes = (JWTAuthentication,)
-    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
+    permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     queryset = Information.objects.all()
     serializer_class = InformationCreateUpdateSerializer
 
@@ -75,8 +139,7 @@ class InformationUpdateAPIView(generics.UpdateAPIView):
     """
         Update a model instance.
     """
-    # authentication_classes = (JWTAuthentication,)
-    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
+    permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     queryset = Information.objects.all()
     serializer_class = InformationCreateUpdateSerializer
 
@@ -102,8 +165,7 @@ class InformationDestroyAPIView(generics.DestroyAPIView):
     """
         Destroy a model instance.
     """
-    # authentication_classes = (JWTAuthentication,)
-    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
+    permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     serializer_class = InformationSerializer
 
     def destroy(self, request, *args, **kwargs):

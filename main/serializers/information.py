@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
+
 from utils.relationship import add_many_to_many, edit_many_to_many
 from helper.models import Mtv, Region, Language, Format
 from main.serializers import PosterSerializer
@@ -16,6 +18,7 @@ from helper.serializers import (
 
 
 class InformationSerializer(serializers.ModelSerializer):
+    serial_count = serializers.IntegerField(read_only=True)
     rating = serializers.FloatField(required=True)
     fond = FondSerializer(required=True)
     category = InformationCategorySerializer(required=False)
@@ -37,7 +40,7 @@ class InformationSerializer(serializers.ModelSerializer):
             'color', 'material', 'duration', 'year', 'month',
             'day', 'single_code', 'restoration', 'confidential',
             'brief_data', 'summary', 'is_serial', 'created'
-            , 'rating'
+            , 'rating', 'serial_count'
         ]
 
 
@@ -131,10 +134,10 @@ class InformationCreateUpdateSerializer(serializers.Serializer):
         languages = validated_data.pop('language_ids')
         formats = validated_data.pop('format_ids')
 
-        # employee = self.context['request'].user
-        # information = Information.objects.create(employee=employee, **validated_data)
+        employee = self.context['request'].user
+        information = Information.objects.create(employee=employee, **validated_data)
 
-        information = Information.objects.create(**validated_data)
+        # information = Information.objects.create(**validated_data)
         add_many_to_many(information.mtv, mtvs)
         add_many_to_many(information.region, regions)
         add_many_to_many(information.language, languages)
@@ -148,11 +151,9 @@ class InformationCreateUpdateSerializer(serializers.Serializer):
         languages = validated_data.pop('language_ids')
         formats = validated_data.pop('format_ids')
 
-        # employee = self.context['request'].user
-        #
-        # # Postni o'zgartirish huquqini tekshirish
-        # if instance.employee != employee:
-        #     raise PermissionDenied("Siz faqat o'zingizning postlaringizni yangilashingiz mumkin.")
+        employee = self.context['request'].user
+        if not employee.is_superuser and instance.employee != employee:
+            raise PermissionDenied("Siz faqat o'zingizning ma'lumotlaringizni yangilashingiz mumkin.")
 
         instance.title = validated_data.get('title', instance.title)
         instance.fond_id = validated_data.get('fond_id', instance.fond.id)

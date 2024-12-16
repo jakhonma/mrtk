@@ -1,9 +1,7 @@
 from rest_framework import status, permissions, response, generics
 from main.serializers import SerialSerializer
 from main.models import Serial, Information
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from controller.permissions import IsOwnerPermission, IsGroupUserPermission
-from rest_framework.authentication import BasicAuthentication
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Sum
 from utils import timedelta, not_serial
@@ -14,6 +12,7 @@ class SerialListAPiView(generics.ListAPIView):
         List a queryset.
     """
     serializer_class = SerialSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
         queryset = get_object_or_404(
@@ -47,6 +46,7 @@ class SerialRetrieveAPIView(generics.RetrieveAPIView):
         Retrieve a model instance.
     """
     serializer_class = SerialSerializer
+    permission_classes = (permissions.IsAuthenticated, )
 
     def retrieve(self, request, *args, **kwargs):
         pk = kwargs['pk']
@@ -63,8 +63,7 @@ class SerialCreateAPIView(generics.CreateAPIView):
     """
         Create a model instance.
     """
-    # authentication_classes = (JWTAuthentication,)
-    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
+    permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     serializer_class = SerialSerializer
 
     def get_queryset(self):
@@ -89,8 +88,7 @@ class SerialUpdateAPIView(generics.UpdateAPIView):
     """
         Update a model instance.
     """
-    # authentication_classes = (JWTAuthentication,)
-    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
+    permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
     serializer_class = SerialSerializer
 
     def update(self, request, *args, **kwargs):
@@ -120,8 +118,7 @@ class SerialDestroyAPIView(generics.DestroyAPIView):
     """
         Destroy a model instance.
     """
-    # authentication_classes = (JWTAuthentication,)
-    # permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
+    permission_classes = (permissions.IsAuthenticated, IsGroupUserPermission)
 
     def destroy(self, request, *args, **kwargs):
         pk = kwargs['pk']

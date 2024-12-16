@@ -104,14 +104,13 @@ class Information(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created']
         permissions = [
             ('can_confidential', 'Can confidential information'),
         ]
 
-    def calculate_rating(self):
-        # Dinamik hisoblash logikasi
-        return 4.5
+    # def calculate_rating(self):
+    #     # Dinamik hisoblash logikasi
+    #     return 4.5
 
     def __str__(self):
         return self.title

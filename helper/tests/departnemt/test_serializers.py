@@ -1,5 +1,5 @@
 from django.test import TestCase
-from helper.models import Department
+from helper.serializers import Department
 from helper.serializers import DepartmentSerializer
 
 

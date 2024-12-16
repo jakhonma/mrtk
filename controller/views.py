@@ -13,9 +13,3 @@ class PermissionViewSet(viewsets.ModelViewSet):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
     permission_classes = (permissions.AllowAny,)
-
-
-# class ContentTypeViewSet(viewsets.ModelViewSet):
-#     queryset = ContentType.objects.all()
-#     serializer_class = ContentTypeSerializer
-#     permission_classes = (permissions.AllowAny,)

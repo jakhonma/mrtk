@@ -2,9 +2,7 @@ from datetime import datetime
 from django.contrib import admin
 from main.models import Information, Poster, Cadre, Serial, Rating
 from import_export.admin import ImportExportModelAdmin
-from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from main.resources import InformationAdminResource
-from rangefilter import filters
 
 
 @admin.register(Information)

@@ -1,5 +1,5 @@
 from django.test import TestCase
-from helper.models import Fond, Department
+from helper.serializers import Fond, Department
 from helper.serializers import FondSerializer
 from django.forms.models import model_to_dict
 

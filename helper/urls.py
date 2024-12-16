@@ -22,4 +22,8 @@ urlpatterns = [
 
     # Mtv, Region, Language va Format List
     path('helper-list-view/', views.HelperListView.as_view()),
+
+    # Filter
+    path('fond-id-list-category/', views.CategoryFondIdListView.as_view()),
+    path('category-parent-id-list/', views.CategoryParenIdListView.as_view()),
 ]
