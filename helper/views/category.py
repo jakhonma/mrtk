@@ -61,26 +61,35 @@ class CategoryFondIdListView(generics.ListAPIView):
     serializer_class = InformationCategorySerializer
 
     def get_queryset(self):
-        fond_id_list = self.request.data['fonds']
-        queryset = Category.objects.filter(
-            fond__id__in=fond_id_list,
-            fond__isnull=False
-        )
+        fond_id_list = self.request.query_params.getlist('fonds')
+        if fond_id_list:
+            queryset = Category.objects.filter(
+                fond__id__in=fond_id_list,
+                fond__isnull=False
+            )
+        else:
+            queryset = Category.objects.filter(
+                fond__isnull=False
+            )
         return queryset
 
 
 class CategoryParenIdListView(generics.ListAPIView):
     """
-        Parentga tegishli Categorylarni qaytaradigan View
+        Parent Id Listga tegishli Categorylarni qaytaradigan View
     """
     serializer_class = InformationCategorySerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        parent_list_id = self.request.data['parents']
-        queryset = Category.objects.filter(
-            parent__id__in=parent_list_id,
-            fond__isnull=True
-        )
+        parent_list_id = self.request.query_params.getlist('parents')
+        if parent_list_id:
+            queryset = Category.objects.filter(
+                parent__id__in=parent_list_id,
+                fond__isnull=True
+            )
+        else:
+            queryset = Category.objects.filter(
+                fond__isnull=True
+            )
         return queryset
-

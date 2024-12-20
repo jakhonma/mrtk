@@ -1,5 +1,4 @@
 from django.db import models
-from helper.models import Fond
 
 
 class Report(models.Model):

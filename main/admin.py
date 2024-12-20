@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.contrib import admin
-from main.models import Information, Poster, Cadre, Serial, Rating
+from main.models import Information, Poster, Cadre, Serial, Rating, Bookmark
 from import_export.admin import ImportExportModelAdmin
 from main.resources import InformationAdminResource
 
@@ -38,7 +38,7 @@ class InformationAdmin(ImportExportModelAdmin):
 
 @admin.register(Serial)
 class SerialAdmin(admin.ModelAdmin):
-    list_display = ['id', 'part', 'duration']
+    list_display = ['id', 'part', 'duration', 'information__title']
 
 
-admin.site.register([Poster, Cadre, Rating])
+admin.site.register([Poster, Cadre, Rating, Bookmark])

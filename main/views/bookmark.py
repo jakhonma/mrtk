@@ -17,9 +17,14 @@ class BookmarkListAPIView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         user = request.user
         lst = []
+        info = []
         queryset = Bookmark.objects.filter(user=user)
-        informations = [bookmark.information for bookmark in queryset if bookmark.information is not None]
-        for information in informations:
+        for bookmark in queryset:
+            if bookmark.information is not None and not self.request.user.has_perm("can_confidential") and bookmark.information.confidential:
+                pass
+            else:
+                info.append(bookmark.information)
+        for information in info:
             rating = Rating.objects.filter(information=information).aggregate(rating=Avg('rating'))
             information.rating = rating['rating']
             lst.append(information)

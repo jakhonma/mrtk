@@ -1,7 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import date
-from utils.generator import code_generator
 
 
 class Information(models.Model):
@@ -91,10 +90,7 @@ class Information(models.Model):
         MinValueValidator(1, message="Kunni tug'ri kiriting?"),
         MaxValueValidator(31, message="Kunni tug'ri kiriting?")
     ])
-    single_code = models.PositiveBigIntegerField(
-        default=code_generator(), 
-        editable=False
-    )
+    restorat = models.CharField(max_length=200, null=True, blank=True)
     restoration = models.BooleanField(default=False)
     confidential = models.BooleanField(default=False)
     brief_data = models.TextField(null=True, blank=True, db_index=True)
@@ -107,10 +103,6 @@ class Information(models.Model):
         permissions = [
             ('can_confidential', 'Can confidential information'),
         ]
-
-    # def calculate_rating(self):
-    #     # Dinamik hisoblash logikasi
-    #     return 4.5
 
     def __str__(self):
         return self.title

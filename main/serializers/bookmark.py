@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from main.models import Bookmark
 from main.serializers.information import InformationSerializer
+from django.core.exceptions import ValidationError as DjangoValidationError
+from rest_framework.exceptions import ValidationError as DRFValidationError
 
 
 class BookmarkListSerializer(serializers.Serializer):
@@ -18,3 +20,11 @@ class BookmarkSerializer(serializers.Serializer):
             **validated_data
         )
         return bookmark
+
+    def validate(self, attrs):
+        category = Bookmark(**attrs)
+        try:
+            category.clean()
+        except DjangoValidationError as e:
+            raise DRFValidationError({"msg": e.message})
+        return attrs

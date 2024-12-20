@@ -9,8 +9,8 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 @admin.register(Fond)
 class FondAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
-    search_fields = ['pk', 'name']
+    list_display = ['id', 'name', 'department__name']
+    search_fields = ['name']
 
 
 @admin.register(Category)

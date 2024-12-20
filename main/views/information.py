@@ -1,4 +1,4 @@
-from django.db.models import Avg, Value, Count, Q
+from django.db.models import Count, Case, When, IntegerField, Avg
 from django.db.models.functions import Coalesce
 from rest_framework import (
     viewsets, status, exceptions, filters, permissions, pagination,
@@ -65,31 +65,29 @@ class InformationListAPIView(generics.ListAPIView):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['region', 'language', 'year']
     search_fields = ['title', 'brief_data', 'summary', 'mtv_index', 'location_on_server']
-    # filterset_fields = [
-    #     'fond__department__name',
-    #     'category__parent__fond__department__name',
-    #     'category__fond__name',
-    #     'category__parent__name',
-    #     'category__name',
-    #     'year',
-    #     'is_serial'
-    # ]
     filterset_class = InformationFilter
 
     def get_queryset(self):
         if not self.request.user.has_perm("can_confidential"):
             queryset = (Information.objects.filter(confidential=False).annotate(
-                    rating=Avg('ratings__rating')
-                ).annotate(
-                    serial_count=Count('serials', filter=Q(is_serial=True))
-                ).order_by('-created'))
+                rating=Avg('ratings__rating'),
+                serial_count=Count(
+                    Case(
+                        When(is_serial=True, then='serials'),  # is_serial=True bo'lsa serialsni hisobla
+                        output_field=IntegerField()
+                    ),
+                    distinct=True)
+            ).order_by('-created'))
         else:
-            queryset = Information.objects.all().annotate(
-                    rating=Avg('ratings__rating')
-                ).annotate(
-                        serial_count=Count('serials', filter=Q(is_serial=True))
-                ).order_by('-created')
-
+            queryset = Information.objects.annotate(
+                rating=Avg('ratings__rating'),
+                serial_count=Count(
+                    Case(
+                        When(is_serial=True, then='serials'),  # is_serial=True bo'lsa serialsni hisobla
+                        output_field=IntegerField()
+                    ),
+                    distinct=True)
+            ).order_by('-created')
         return queryset
 
 

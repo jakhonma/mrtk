@@ -38,7 +38,7 @@ class InformationSerializer(serializers.ModelSerializer):
             'mtv', 'region', 'language', 'format',
             'poster', 'mtv_index', 'location_on_server',
             'color', 'material', 'duration', 'year', 'month',
-            'day', 'single_code', 'restoration', 'confidential',
+            'day', 'restorat', 'restoration', 'confidential',
             'brief_data', 'summary', 'is_serial', 'created'
             , 'rating', 'serial_count'
         ]
@@ -119,7 +119,7 @@ class InformationCreateUpdateSerializer(serializers.Serializer):
         MinValueValidator(1, message="Kunni tug'ri kiriting?"),
         MaxValueValidator(31, message="Kunni tug'ri kiriting?")
     ], allow_null=True)
-    single_code = serializers.IntegerField(read_only=True)
+    restorat = serializers.CharField(max_length=200, required=True)
     restoration = serializers.BooleanField(default=False)
     confidential = serializers.BooleanField(default=False)
     brief_data = serializers.CharField(max_length=3000, allow_blank=True)
@@ -166,6 +166,7 @@ class InformationCreateUpdateSerializer(serializers.Serializer):
         instance.year = validated_data.get('year', instance.year)
         instance.month = validated_data.get('month', instance.month)
         instance.day = validated_data.get('day', instance.day)
+        instance.restorat = validated_data.get('restorat', instance.restorat)
         instance.restoration = validated_data.get('restoration', instance.restoration)
         instance.confidential = validated_data.get('confidential', instance.confidential)
         instance.brief_data = validated_data.get('brief_data', instance.brief_data)

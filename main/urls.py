@@ -1,14 +1,8 @@
 from django.urls import path, include
-from rest_framework import routers
 from main import views
-
-# router = routers.DefaultRouter()
-# router.register("information", views.InformationViewSet, basename="information")
-# # router.register("cadre", views.CadreViewSet)
 
 urlpatterns = [
     # Information
-    # path('', include(router.urls)),
     path('information/', views.InformationListAPIView.as_view()),
     path('information/<int:pk>/', views.InformationRetrieveAPIView.as_view()),
     path('create-information/', views.InformationCreateAPIView.as_view()),
@@ -37,4 +31,8 @@ urlpatterns = [
     path('bookmark/create/', views.BookmarkCreateAPIView.as_view()),
     path('<int:information_id>/bookmark/delete/', views.BookmarkDestroyAPIView.as_view()),
 
+    # rating
+    path('<int:information_id>/rating-get/', views.RatingRetrieveAPIView.as_view()),
+    path('<int:information_id>/rating-create/', views.RatingCreateAPIView.as_view()),
+    path('<int:information_id>/rating-update/<int:pk>/', views.RatingUpdateAPIView.as_view()),
 ]

@@ -8,9 +8,13 @@ class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     information = models.ForeignKey(Information, on_delete=models.CASCADE, related_name="ratings")
     rating = models.IntegerField(
-        # validators=[MinValueValidator(0.0), MaxValueValidator(10.0)],
+        default=0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(10.0)],
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ('user', 'information')
+
+    def __str__(self):
+        return f'{self.user} - {self.information}'

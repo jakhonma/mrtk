@@ -36,7 +36,7 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(**authenticate_kwargs)
 
         if user is None:
-            raise ValidationError("Username and Password error")
+            raise ValidationError("Username yoki Password xato")
 
         login(authenticate_kwargs["request"], user)
         refresh = self.get_token(user)
@@ -67,4 +67,13 @@ class UserRegisterSerializer(serializers.Serializer):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }
-
+    
+    def validate(self, attrs):
+        username = attrs.get("username")
+        password = attrs.get("password")
+        exist = User.objects.filter(username=username).exists()
+        if exist:
+            raise ValidationError(_(f"Tizimda {username} nomli username mavjud!"))
+        if len(password) < 8:
+            raise ValidationError(_("Password kamida 8 ta belgidan iborat bo'lishi kerak"))
+        return attrs
